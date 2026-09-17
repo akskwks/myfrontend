@@ -1,4 +1,10 @@
-import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type FormEvent,
+  type KeyboardEvent,
+} from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import {
@@ -134,7 +140,11 @@ export function AiPage() {
   }
 
   function handleQuestionKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
-    if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) {
+    if (
+      event.key === "Enter" &&
+      !event.shiftKey &&
+      !event.nativeEvent.isComposing
+    ) {
       event.preventDefault();
       event.currentTarget.form?.requestSubmit();
     }
@@ -145,7 +155,6 @@ export function AiPage() {
       <Topbar active="ai" />
       <header className="page-header compact-header ai-page-header">
         <div>
-          <a className="back-link" href="#/">← 메인으로</a>
           <p className="eyebrow">MyApp Assistant</p>
           <h1>AI 챗봇</h1>
           <p>일정과 메모를 자연어로 조회하고 정리할 수 있습니다.</p>
@@ -156,26 +165,58 @@ export function AiPage() {
       <section className="ai-workspace" aria-label="AI 대화">
         <aside className="conversation-sidebar">
           <div className="conversation-sidebar-header">
-            <div><span>대화</span><strong>{conversations.length}</strong></div>
-            <button className="icon-button" type="button" title="새 대화" aria-label="새 대화" onClick={startConversation}>+</button>
+            <div>
+              <span>대화</span>
+              <strong>{conversations.length}</strong>
+            </div>
+            <button
+              className="icon-button"
+              type="button"
+              title="새 대화"
+              aria-label="새 대화"
+              onClick={startConversation}
+            >
+              +
+            </button>
           </div>
           <div className="conversation-list">
             {conversations.map((conversation) => (
-              <div className={`conversation-item ${selectedId === conversation.conversationId ? "is-current" : ""}`} key={conversation.conversationId}>
-                <button type="button" onClick={() => setSelectedId(conversation.conversationId)}>
+              <div
+                className={`conversation-item ${selectedId === conversation.conversationId ? "is-current" : ""}`}
+                key={conversation.conversationId}
+              >
+                <button
+                  type="button"
+                  onClick={() => setSelectedId(conversation.conversationId)}
+                >
                   <strong>{conversation.title}</strong>
                   <span>{formatConversationDate(conversation.updatedAt)}</span>
                 </button>
-                <button className="conversation-delete" type="button" title="대화 삭제" aria-label={`${conversation.title} 삭제`} onClick={() => removeConversation(conversation.conversationId)}>×</button>
+                <button
+                  className="conversation-delete"
+                  type="button"
+                  title="대화 삭제"
+                  aria-label={`${conversation.title} 삭제`}
+                  onClick={() =>
+                    removeConversation(conversation.conversationId)
+                  }
+                >
+                  ×
+                </button>
               </div>
             ))}
-            {!pageLoading && conversations.length === 0 && <p className="conversation-empty">저장된 대화가 없습니다.</p>}
+            {!pageLoading && conversations.length === 0 && (
+              <p className="conversation-empty">저장된 대화가 없습니다.</p>
+            )}
           </div>
         </aside>
 
         <div className="chat-panel">
           <div className="chat-panel-header">
-            <div><strong>{selectedConversation?.title ?? "새 대화"}</strong><span>{loading ? "답변 생성 중" : "준비됨"}</span></div>
+            <div>
+              <strong>{selectedConversation?.title ?? "새 대화"}</strong>
+              <span>{loading ? "답변 생성 중" : "준비됨"}</span>
+            </div>
           </div>
           <div className="chat-log" aria-live="polite">
             {pageLoading && messages.length === 0 ? (
@@ -184,31 +225,77 @@ export function AiPage() {
               <div className="chat-empty">
                 <span className="chat-symbol">AI</span>
                 <h2>무엇을 도와드릴까요?</h2>
-                <p>일정 조회·등록, 메모 검색·요약 또는 일반 질문을 입력하세요.</p>
+                <p>
+                  일정 조회·등록, 메모 검색·요약 또는 일반 질문을 입력하세요.
+                </p>
                 <div className="suggestion-list">
-                  {suggestions.map((suggestion) => <button key={suggestion} type="button" onClick={() => setQuestion(suggestion)}>{suggestion}</button>)}
+                  {suggestions.map((suggestion) => (
+                    <button
+                      key={suggestion}
+                      type="button"
+                      onClick={() => setQuestion(suggestion)}
+                    >
+                      {suggestion}
+                    </button>
+                  ))}
                 </div>
               </div>
             ) : (
               messages.map((message) => (
-                <article className={`chat-message ${message.role}`} key={message.messageId}>
-                  <header><strong>{message.role === "user" ? "나" : "AI"}</strong><time>{formatMessageTime(message.createdAt)}</time></header>
+                <article
+                  className={`chat-message ${message.role}`}
+                  key={message.messageId}
+                >
+                  <header>
+                    <strong>{message.role === "user" ? "나" : "AI"}</strong>
+                    <time>{formatMessageTime(message.createdAt)}</time>
+                  </header>
                   <MessageContent content={message.content} />
                 </article>
               ))
             )}
-            {loading && <div className="chat-loading" role="status"><span /><span /><span /><em>답변을 생성하고 있습니다.</em></div>}
-            {error && <p className="chat-error" role="alert">{error}</p>}
+            {loading && (
+              <div className="chat-loading" role="status">
+                <span />
+                <span />
+                <span />
+                <em>답변을 생성하고 있습니다.</em>
+              </div>
+            )}
+            {error && (
+              <p className="chat-error" role="alert">
+                {error}
+              </p>
+            )}
             <div ref={chatEndRef} />
           </div>
 
           <form className="chat-form" onSubmit={submit}>
             <label htmlFor="aiQuestion">메시지</label>
             <div className="chat-input-row">
-              <textarea id="aiQuestion" rows={3} maxLength={4000} value={question} onChange={(event) => setQuestion(event.target.value)} onKeyDown={handleQuestionKeyDown} placeholder="메시지를 입력하세요. Enter로 전송, Shift+Enter로 줄바꿈" disabled={loading} required />
-              <button className="primary-button" type="submit" disabled={loading || !question.trim()}>{loading ? "요청 중" : "보내기"}</button>
+              <textarea
+                id="aiQuestion"
+                rows={3}
+                maxLength={4000}
+                value={question}
+                onChange={(event) => setQuestion(event.target.value)}
+                onKeyDown={handleQuestionKeyDown}
+                placeholder="메시지를 입력하세요. Enter로 전송, Shift+Enter로 줄바꿈"
+                disabled={loading}
+                required
+              />
+              <button
+                className="primary-button"
+                type="submit"
+                disabled={loading || !question.trim()}
+              >
+                {loading ? "요청 중" : "보내기"}
+              </button>
             </div>
-            <div className="chat-form-meta"><span>{question.length.toLocaleString()} / 4,000</span><span>AI 답변은 중요한 내용을 다시 확인해 주세요.</span></div>
+            <div className="chat-form-meta">
+              <span>{question.length.toLocaleString()} / 4,000</span>
+              <span>AI 답변은 중요한 내용을 다시 확인해 주세요.</span>
+            </div>
           </form>
         </div>
       </section>
@@ -217,7 +304,18 @@ export function AiPage() {
 }
 
 function MessageContent({ content }: { content: string }) {
-  return <div className="chat-markdown"><ReactMarkdown remarkPlugins={[remarkGfm]} components={{ a: (props) => <a {...props} target="_blank" rel="noreferrer" /> }}>{content}</ReactMarkdown></div>;
+  return (
+    <div className="chat-markdown">
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={{
+          a: (props) => <a {...props} target="_blank" rel="noreferrer" />,
+        }}
+      >
+        {content}
+      </ReactMarkdown>
+    </div>
+  );
 }
 
 function getErrorMessage(cause: unknown) {
@@ -226,12 +324,21 @@ function getErrorMessage(cause: unknown) {
 }
 
 function formatMessageTime(value: string) {
-  return new Intl.DateTimeFormat("ko-KR", { hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date(value));
+  return new Intl.DateTimeFormat("ko-KR", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(new Date(value));
 }
 
 function formatConversationDate(value: string) {
   const date = new Date(value);
   const today = new Date();
-  if (date.getFullYear() === today.getFullYear() && date.getMonth() === today.getMonth() && date.getDate() === today.getDate()) return formatMessageTime(value);
+  if (
+    date.getFullYear() === today.getFullYear() &&
+    date.getMonth() === today.getMonth() &&
+    date.getDate() === today.getDate()
+  )
+    return formatMessageTime(value);
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 }

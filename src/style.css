@@ -1050,7 +1050,11 @@ h3 {
   font-weight: inherit;
 }
 
-.tiptap-shell .ProseMirror li[data-type="taskItem"] > label input[type="checkbox"] {
+.tiptap-shell
+  .ProseMirror
+  li[data-type="taskItem"]
+  > label
+  input[type="checkbox"] {
   width: 13px;
   height: 13px;
   margin: 0;
@@ -1122,7 +1126,7 @@ h3 {
 .conversation-sidebar-header span,
 .chat-panel-header span {
   color: var(--muted);
-  font-size: 0.82rem;
+  font-size: 0.9rem;
 }
 
 .conversation-sidebar-header strong {
@@ -1368,7 +1372,10 @@ h3 {
   border-radius: 4px;
   background: #e8eeeb;
   color: #9b2c2c;
-  font: 0.88em "SFMono-Regular", Consolas, monospace;
+  font:
+    0.88em "SFMono-Regular",
+    Consolas,
+    monospace;
 }
 
 .chat-markdown pre {
