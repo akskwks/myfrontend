@@ -29,6 +29,14 @@ export function createConversation(title = "새 대화") {
   });
 }
 
+export function updateConversationTitle(conversationId: number, title: string) {
+  return request<AiConversation>(`${AI_CONVERSATION_API_URL}/${conversationId}`, {
+    method: "PUT",
+    headers: jsonHeaders,
+    body: JSON.stringify({ title }),
+  });
+}
+
 export function getConversationMessages(conversationId: number) {
   return request<ChatMessage[]>(
     `${AI_CONVERSATION_API_URL}/${conversationId}/messages`,

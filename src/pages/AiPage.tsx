@@ -7,12 +7,14 @@ import {
 } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { Check, Pencil, X } from "lucide-react";
 import {
   askLlm,
   createConversation,
   deleteConversation,
   getConversationMessages,
   getConversations,
+  updateConversationTitle,
 } from "../api/aichatApi";
 import { ApiError } from "../api/http";
 import { AppShell } from "../components/AppShell";
@@ -32,6 +34,8 @@ export function AiPage() {
   const [loading, setLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
   const [error, setError] = useState("");
+  const [editingConversationId, setEditingConversationId] = useState<number | null>(null);
+  const [conversationTitle, setConversationTitle] = useState("");
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   const selectedConversation = conversations.find(
@@ -111,6 +115,54 @@ export function AiPage() {
     }
   }
 
+  function startConversationEdit(conversation: AiConversation) {
+    setEditingConversationId(conversation.conversationId);
+    setConversationTitle(conversation.title);
+    setError("");
+  }
+
+  async function saveConversationTitle(conversationId: number) {
+    const title = conversationTitle.trim();
+    const previous = conversations.find(
+      (conversation) => conversation.conversationId === conversationId,
+    );
+    if (!previous) return;
+    if (!title) {
+      setEditingConversationId(null);
+      setConversationTitle("");
+      return;
+    }
+
+    setEditingConversationId(null);
+    setConversations((current) =>
+      current.map((conversation) =>
+        conversation.conversationId === conversationId
+          ? { ...conversation, title }
+          : conversation,
+      ),
+    );
+
+    try {
+      const updated = await updateConversationTitle(conversationId, title);
+      setConversations((current) =>
+        current.map((conversation) =>
+          conversation.conversationId === conversationId
+            ? updated
+            : conversation,
+        ),
+      );
+    } catch (cause) {
+      setConversations((current) =>
+        current.map((conversation) =>
+          conversation.conversationId === conversationId
+            ? previous
+            : conversation,
+        ),
+      );
+      setError(getErrorMessage(cause));
+    }
+  }
+
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const message = question.trim();
@@ -154,7 +206,7 @@ export function AiPage() {
     <AppShell active="ai" className="ai-page-content">
       <header className="page-header compact-header ai-page-header">
         <div>
-          <p className="eyebrow">MyApp Assistant</p>
+          <p className="eyebrow">AI Chat</p>
           <h1>AI 챗봇</h1>
           <p>일정과 메모를 자연어로 조회하고 정리할 수 있습니다.</p>
         </div>
@@ -184,12 +236,54 @@ export function AiPage() {
                 className={`conversation-item ${selectedId === conversation.conversationId ? "is-current" : ""}`}
                 key={conversation.conversationId}
               >
+                {editingConversationId === conversation.conversationId ? (
+                  <input
+                    className="conversation-title-input"
+                    value={conversationTitle}
+                    maxLength={120}
+                    aria-label="대화 제목"
+                    autoFocus
+                    onFocus={(event) => event.currentTarget.select()}
+                    onChange={(event) => setConversationTitle(event.target.value)}
+                    onBlur={() => saveConversationTitle(conversation.conversationId)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter") {
+                        event.preventDefault();
+                        saveConversationTitle(conversation.conversationId);
+                      }
+                      if (event.key === "Escape") {
+                        setEditingConversationId(null);
+                        setConversationTitle("");
+                      }
+                    }}
+                  />
+                ) : (
+                  <button
+                    className="conversation-select"
+                    type="button"
+                    onClick={() => setSelectedId(conversation.conversationId)}
+                  >
+                    <strong>{conversation.title}</strong>
+                    <span>{formatConversationDate(conversation.updatedAt)}</span>
+                  </button>
+                )}
                 <button
+                  className="conversation-edit"
                   type="button"
-                  onClick={() => setSelectedId(conversation.conversationId)}
+                  title={editingConversationId === conversation.conversationId ? "제목 저장" : "대화명 수정"}
+                  aria-label={`${conversation.title} ${editingConversationId === conversation.conversationId ? "제목 저장" : "대화명 수정"}`}
+                  onMouseDown={(event) => event.preventDefault()}
+                  onClick={() =>
+                    editingConversationId === conversation.conversationId
+                      ? saveConversationTitle(conversation.conversationId)
+                      : startConversationEdit(conversation)
+                  }
                 >
-                  <strong>{conversation.title}</strong>
-                  <span>{formatConversationDate(conversation.updatedAt)}</span>
+                  {editingConversationId === conversation.conversationId ? (
+                    <Check size={15} aria-hidden="true" />
+                  ) : (
+                    <Pencil size={14} aria-hidden="true" />
+                  )}
                 </button>
                 <button
                   className="conversation-delete"
@@ -200,7 +294,7 @@ export function AiPage() {
                     removeConversation(conversation.conversationId)
                   }
                 >
-                  ×
+                  <X size={16} aria-hidden="true" />
                 </button>
               </div>
             ))}
@@ -214,7 +308,9 @@ export function AiPage() {
           <div className="chat-panel-header">
             <div>
               <strong>{selectedConversation?.title ?? "새 대화"}</strong>
-              <span>{loading ? "답변 생성 중" : "준비됨"}</span>
+              <span className={loading ? "is-loading" : ""}>
+                {loading ? "답변 생성 중" : "준비됨"}
+              </span>
             </div>
           </div>
           <div className="chat-log" aria-live="polite">
@@ -293,7 +389,10 @@ export function AiPage() {
             </div>
             <div className="chat-form-meta">
               <span>{question.length.toLocaleString()} / 4,000</span>
-              <span>AI 답변은 중요한 내용을 다시 확인해 주세요.</span>
+              <span>
+                AI는 실수를 할 수 있습니다! 답변 내용을 한 번씩 확인해 주시기
+                바랍니다.
+              </span>
             </div>
           </form>
         </div>
