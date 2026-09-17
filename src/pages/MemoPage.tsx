@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { deleteMemo, getMemo, getMemos, updateMemo } from "../api/memoApi";
-import { Topbar } from "../components/Topbar";
+import { AppShell } from "../components/AppShell";
 import { TiptapMemoEditor } from "../components/TiptapMemoEditor";
 import type { Memo } from "../types/memo";
 import { MemoCreate, memoSorts, templateLabel } from "./MemoCreate";
@@ -60,8 +60,7 @@ export function MemoPage() {
   const route = useMemo(parseMemoRoute, [location.hash]);
 
   return (
-    <main className="shell">
-      <Topbar active="memo" />
+    <AppShell active="memo" className="memo-page-content">
       <header className="page-header compact-header">
         <div>
           <p className="eyebrow">Memo</p>
@@ -81,7 +80,7 @@ export function MemoPage() {
       {route.mode === "edit" && route.memoId && (
         <MemoDetailView memoId={route.memoId} startEditing />
       )}
-    </main>
+    </AppShell>
   );
 }
 

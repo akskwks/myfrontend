@@ -5,7 +5,7 @@ import {
   getCalendarEvents,
   updateCalendarEvent,
 } from "../api/calendarApi";
-import { Topbar } from "../components/Topbar";
+import { AppShell } from "../components/AppShell";
 import type { CalendarEvent, CalendarEventPayload } from "../types/calendar";
 
 const categoryLabels: Record<CalendarEvent["eventCatg"], string> = {
@@ -133,8 +133,7 @@ export function CalendarPage() {
   }
 
   return (
-    <main className="shell">
-      <Topbar active="calendar" />
+    <AppShell active="calendar" className="calendar-page-content">
       <header className="page-header compact-header">
         <div>
           <p className="eyebrow">Calendar</p>
@@ -366,6 +365,6 @@ export function CalendarPage() {
           </form>
         </aside>
       </section>
-    </main>
+    </AppShell>
   );
 }

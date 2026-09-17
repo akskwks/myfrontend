@@ -1,125 +1,107 @@
-import { useEffect, useState } from "react";
-import { getCalendarEvents } from "../api/calendarApi";
-import { getMemos } from "../api/memoApi";
+import {
+  ArrowRight,
+  Bot,
+  CalendarPlus,
+  FileSearch,
+  NotebookPen,
+} from "lucide-react";
 import heroImg from "../assets/hero.png";
-import { Topbar } from "../components/Topbar";
+import { AppShell } from "../components/AppShell";
 
-type Metrics = {
-  schedules: number;
-  today: number;
-  memos: number;
-};
+const capabilities = [
+  {
+    icon: CalendarPlus,
+    title: "일정 조회와 등록",
+    description:
+      "날짜와 시간을 말하면 일정을 확인하거나 캘린더에 바로 추가합니다.",
+  },
+  {
+    icon: FileSearch,
+    title: "메모 검색과 요약",
+    description:
+      "업무, 코드, TODO 메모에서 필요한 기록을 찾고 핵심만 정리합니다.",
+  },
+  {
+    icon: NotebookPen,
+    title: "대화와 기록 연결",
+    description: "저장된 대화를 이어가며 일정과 메모를 한 흐름에서 관리합니다.",
+  },
+];
+
+const examples = [
+  "오늘 일정 알려줘",
+  "내일 오후 3시에 회의 일정 추가해줘",
+  "이번 주 업무 메모 요약해줘",
+];
 
 export function MainPage() {
-  const [metrics, setMetrics] = useState<Metrics | null>(null);
-
-  useEffect(() => {
-    let active = true;
-
-    Promise.all([getCalendarEvents(), getMemos()])
-      .then(([events, memos]) => {
-        if (!active) return;
-        const today = new Date().toISOString().slice(0, 10);
-        setMetrics({
-          schedules: events.length,
-          today: events.filter((event) => event.eventDate === today).length,
-          memos: memos.length,
-        });
-      })
-      .catch(() => {
-        if (active) setMetrics({ schedules: 0, today: 0, memos: 0 });
-      });
-
-    return () => {
-      active = false;
-    };
-  }, []);
-
   return (
-    <main className="shell">
-      <Topbar active="main" />
-
-      <section className="hero-section" id="top">
-        <div className="hero-copy">
+    <AppShell active="main" className="home-page-content" scrollable>
+      <section className="home-hero">
+        <img className="home-hero-art" src={heroImg} alt="" />
+        <div className="home-hero-copy">
           <p className="eyebrow">Personal AI workspace</p>
-          <h1>개발중</h1>
-          <p className="hero-text">
-            MyApp은 개인 생산성을 위한 캘린더와 메모장, Ollama 기반 AI 챗봇을
-            함께 다루는 작업 공간입니다.
+          <h1>MyApp AI Assistant</h1>
+          <p>
+            일정과 메모를 관리하고, 한 문장의 질문으로 필요한 기록을 찾고
+            정리하세요.
           </p>
           <div className="hero-actions">
-            <a className="primary-button" href="#/calendar">
-              일정 관리
+            <a className="primary-button" href="#/ai">
+              <Bot size={18} aria-hidden="true" />
+              AI 챗봇 시작
+              <ArrowRight size={17} aria-hidden="true" />
             </a>
-            <a className="secondary-button" href="#/memos">
-              메모 작성
+            <a className="home-secondary-action" href="#/calendar">
+              캘린더 열기
             </a>
           </div>
         </div>
 
-        <aside className="hero-panel" aria-label="MyApp 요약">
-          <div className="panel-header">
-            <div>
-              <span className="panel-kicker">Today</span>
-              <h2>생산성 허브</h2>
-            </div>
-            <span className="live-pill">Ready</span>
+        <div className="home-chat-preview" aria-label="AI 챗봇 사용 예시">
+          <div className="preview-message user">오늘 일정 알려줘</div>
+          <div className="preview-message assistant">
+            오늘은 오후 3시 프로젝트 회의가 있습니다.
           </div>
-          <img className="hero-image" src={heroImg} alt="생산성 앱 일러스트" />
-          <div className="task-list">
-            <article className="task-item is-active">
-              <span className="task-dot" />
-              <div>
-                <h3>오늘 일정 확인</h3>
-                <p>날짜별 일정을 확인하고 새 계획을 바로 추가하세요.</p>
-              </div>
-            </article>
-            <article className="task-item">
-              <span className="task-dot" />
-              <div>
-                <h3>기록과 대화</h3>
-                <p>업무 메모와 코드 메모를 남기고 AI에게 질문하세요.</p>
-              </div>
-            </article>
-          </div>
-        </aside>
-      </section>
-
-      <section className="metrics" aria-label="MyApp 현황">
-        <div>
-          <strong>{metrics?.schedules ?? "-"}</strong>
-          <span>전체 일정</span>
-        </div>
-        <div>
-          <strong>{metrics?.today ?? "-"}</strong>
-          <span>오늘 일정</span>
-        </div>
-        <div>
-          <strong>{metrics?.memos ?? "-"}</strong>
-          <span>저장 메모</span>
         </div>
       </section>
 
-      <section className="workflow" id="workflow">
-        <div>
-          <p className="eyebrow">Simple workflow</p>
-          <h2>오늘 할 일과 생각을 가볍게 정리합니다.</h2>
+      <section className="home-capabilities" aria-labelledby="capability-title">
+        <div className="home-section-heading">
+          <div>
+            <p className="eyebrow">Connected tools</p>
+            <h2 id="capability-title">대화만으로 MyApp을 사용하세요</h2>
+          </div>
+          <p>AI가 캘린더와 메모에서 저장된 내용을 통해 요청을 처리합니다.</p>
         </div>
-        <ol className="steps">
-          <li>
-            <span>계획</span>
-            <p>캘린더에 일정과 시간을 등록합니다.</p>
-          </li>
-          <li>
-            <span>기록</span>
-            <p>상황에 맞는 템플릿으로 메모를 남깁니다.</p>
-          </li>
-          <li>
-            <span>질문</span>
-            <p>필요할 때 로컬 AI 챗봇으로 생각을 정리합니다.</p>
-          </li>
-        </ol>
+
+        <div className="capability-grid">
+          {capabilities.map(({ icon: Icon, title, description }) => (
+            <article className="capability-card" key={title}>
+              <span>
+                <Icon size={21} aria-hidden="true" />
+              </span>
+              <h3>{title}</h3>
+              <p>{description}</p>
+            </article>
+          ))}
+        </div>
       </section>
-    </main>
+
+      <section className="home-examples" aria-labelledby="example-title">
+        <div>
+          <p className="eyebrow">Try asking</p>
+          <h2 id="example-title">이렇게 요청해 보세요</h2>
+        </div>
+        <div className="example-prompts">
+          {examples.map((example) => (
+            <a href="#/ai" key={example}>
+              <span>{example}</span>
+              <ArrowRight size={17} aria-hidden="true" />
+            </a>
+          ))}
+        </div>
+      </section>
+    </AppShell>
   );
 }

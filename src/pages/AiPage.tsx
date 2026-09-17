@@ -15,7 +15,7 @@ import {
   getConversations,
 } from "../api/aichatApi";
 import { ApiError } from "../api/http";
-import { Topbar } from "../components/Topbar";
+import { AppShell } from "../components/AppShell";
 import type { AiConversation, ChatMessage } from "../types/aichat";
 
 const suggestions = [
@@ -151,8 +151,7 @@ export function AiPage() {
   }
 
   return (
-    <main className="shell ai-page">
-      <Topbar active="ai" />
+    <AppShell active="ai" className="ai-page-content">
       <header className="page-header compact-header ai-page-header">
         <div>
           <p className="eyebrow">MyApp Assistant</p>
@@ -299,7 +298,7 @@ export function AiPage() {
           </form>
         </div>
       </section>
-    </main>
+    </AppShell>
   );
 }
 
