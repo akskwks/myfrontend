@@ -28,7 +28,7 @@ const capabilities = [
   {
     icon: BriefcaseBusiness,
     title: "업무 진행 관리",
-    description: "수행 업무의 상태와 진행률을 날짜별로 기록하고 확인합니다.",
+    description: "프로젝트별 수행 업무와 진행 상태를 날짜별로 기록하고 확인합니다.",
   },
   {
     icon: Bot,

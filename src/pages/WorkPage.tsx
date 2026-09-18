@@ -253,7 +253,6 @@ function WorkListView({ project }: { project: WorkProject }) {
                 <th scope="col">업무일자</th>
                 <th scope="col">진행 상태</th>
                 <th scope="col">업무 제목</th>
-                <th scope="col">진행률</th>
                 <th scope="col">수정일</th>
               </tr>
             </thead>
@@ -279,14 +278,6 @@ function WorkListView({ project }: { project: WorkProject }) {
                     </span>
                   </td>
                   <td className="work-board-title">{work.workTitle}</td>
-                  <td>
-                    <div className="work-progress-compact">
-                      <span>
-                        <i style={{ width: `${work.workProgress}%` }} />
-                      </span>
-                      <b>{work.workProgress}%</b>
-                    </div>
-                  </td>
                   <td>{formatUpdatedAt(work.updatedAt)}</td>
                 </tr>
               ))}
@@ -318,7 +309,6 @@ function WorkDetailView({
       workTitle: item.workTitle,
       workCnnt: item.workCnnt,
       workStatus: item.workStatus,
-      workProgress: item.workProgress,
     };
   }
 
@@ -517,36 +507,6 @@ function WorkDetailView({
               <span className={`work-status-badge is-${work.workStatus}`}>
                 {workStatusLabel(work.workStatus)}
               </span>
-            )}
-          </dd>
-        </div>
-        <div>
-          <dt>진행률</dt>
-          <dd>
-            {editing ? (
-              <label className="work-progress-field compact-progress">
-                <input
-                  type="range"
-                  min="0"
-                  max="100"
-                  step="5"
-                  value={draft.workProgress}
-                  onChange={(event) =>
-                    setDraft({
-                      ...draft,
-                      workProgress: Number(event.target.value),
-                    })
-                  }
-                />
-                <output>{draft.workProgress}%</output>
-              </label>
-            ) : (
-              <div className="work-progress-detail">
-                <span>
-                  <i style={{ width: `${work.workProgress}%` }} />
-                </span>
-                <b>{work.workProgress}%</b>
-              </div>
             )}
           </dd>
         </div>

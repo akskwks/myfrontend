@@ -384,7 +384,10 @@ function ProjectEditorRow({
           showMonthDropdown
           showYearDropdown
           dropdownMode="select"
-          withPortal
+          portalId="project-datepicker-portal"
+          popperPlacement="bottom-start"
+          showPopperArrow={false}
+          popperClassName="project-date-picker-popper"
           className="project-date-input"
           calendarClassName="myapp-date-picker"
           aria-label="프로젝트 시작일"
@@ -403,7 +406,10 @@ function ProjectEditorRow({
           showMonthDropdown
           showYearDropdown
           dropdownMode="select"
-          withPortal
+          portalId="project-datepicker-portal"
+          popperPlacement="bottom-start"
+          showPopperArrow={false}
+          popperClassName="project-date-picker-popper"
           className="project-date-input"
           calendarClassName="myapp-date-picker"
           aria-label="프로젝트 종료일"

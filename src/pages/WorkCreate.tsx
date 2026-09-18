@@ -19,12 +19,16 @@ export const workStatusLabel = (status: WorkStatus) =>
   workStatusOptions.find((option) => option.value === status)?.label ?? "예정";
 
 export const workTemplate = `
-  <h2>주요 작업 내용</h2>
-  <p>내용을 입력하세요.</p>
-  <h2>이슈 / 특이사항</h2>
-  <p>내용을 입력하세요.</p>
-  <h2>다음 작업</h2>
-  <ul><li><p>다음 작업을 입력하세요.</p></li></ul>
+  <table>
+    <thead>
+      <tr><th><p>구분</p></th><th><p>내용</p></th></tr>
+    </thead>
+    <tbody>
+      <tr><td><p>주요 작업 내용</p></td><td><p>내용을 입력하세요.</p></td></tr>
+      <tr><td><p>이슈 / 특이사항</p></td><td><p>내용을 입력하세요.</p></td></tr>
+      <tr><td><p>다음 작업</p></td><td><p>내용을 입력하세요.</p></td></tr>
+    </tbody>
+  </table>
 `;
 
 export function toDateText(date: Date) {
@@ -51,7 +55,6 @@ const emptyPayload = (projectId: number): WorkPayload => ({
   workTitle: "",
   workCnnt: workTemplate,
   workStatus: "planned",
-  workProgress: 0,
 });
 
 export function WorkCreate({
@@ -162,24 +165,6 @@ export function WorkCreate({
               ))}
             </select>
           </label>
-          <label className="work-progress-field">
-            <span>
-              진행률 <output>{payload.workProgress}%</output>
-            </span>
-            <input
-              type="range"
-              min="0"
-              max="100"
-              step="5"
-              value={payload.workProgress}
-              onChange={(event) =>
-                setPayload({
-                  ...payload,
-                  workProgress: Number(event.target.value),
-                })
-              }
-            />
-          </label>
         </div>
 
         <div>
@@ -191,7 +176,7 @@ export function WorkCreate({
           />
         </div>
         <p className="editor-helper-text">
-          주요 작업, 이슈, 다음 작업을 하나의 문서에서 자유롭게 작성할 수
+          표의 각 셀에서 주요 작업, 이슈, 다음 작업을 자유롭게 작성할 수
           있습니다.
         </p>
         {error && (

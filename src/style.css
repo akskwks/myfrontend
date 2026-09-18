@@ -1132,61 +1132,8 @@ h3 {
   color: #9a5b00;
 }
 
-.work-progress-compact,
-.work-progress-detail {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.work-progress-compact > span,
-.work-progress-detail > span {
-  height: 7px;
-  flex: 1;
-  overflow: hidden;
-  border-radius: 4px;
-  background: #e6ece9;
-}
-
-.work-progress-compact i,
-.work-progress-detail i {
-  display: block;
-  height: 100%;
-  border-radius: inherit;
-  background: var(--accent);
-}
-
-.work-progress-compact b,
-.work-progress-detail b {
-  min-width: 42px;
-  color: var(--muted);
-  font-size: 0.84rem;
-  font-variant-numeric: tabular-nums;
-  text-align: right;
-}
-
 .work-structured-fields {
   grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.work-progress-field {
-  grid-column: 1 / -1;
-}
-
-.work-progress-field > span {
-  display: flex;
-  justify-content: space-between;
-}
-
-.work-progress-field output {
-  color: var(--accent-dark);
-  font-variant-numeric: tabular-nums;
-  font-weight: 850;
-}
-
-.work-progress-field input[type="range"] {
-  padding: 0;
-  accent-color: var(--accent);
 }
 
 .work-editor-form {
@@ -1199,7 +1146,7 @@ h3 {
 
 .work-detail-meta {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1px;
   overflow: hidden;
   margin: 22px 0;
@@ -1241,22 +1188,6 @@ h3 {
 
 .work-detail-meta .date-picker-input {
   padding-left: 36px;
-}
-
-.compact-progress {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-}
-
-.compact-progress input {
-  min-width: 70px;
-  flex: 1;
-  accent-color: var(--accent);
-}
-
-.work-progress-detail > span {
-  min-width: 70px;
 }
 
 .work-title-input {
@@ -1513,7 +1444,7 @@ h3 {
   text-underline-offset: 3px;
 }
 
-.react-datepicker__portal {
+.project-date-picker-popper {
   z-index: 100;
 }
 
@@ -1613,6 +1544,49 @@ h3 {
     0.9rem/1.6 "SFMono-Regular",
     Consolas,
     monospace;
+}
+
+.tiptap-shell .ProseMirror .tableWrapper {
+  overflow-x: auto;
+  margin: 4px 0 14px;
+}
+
+.tiptap-shell .ProseMirror table {
+  width: 100%;
+  min-width: 560px;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.tiptap-shell .ProseMirror th,
+.tiptap-shell .ProseMirror td {
+  position: relative;
+  min-width: 120px;
+  padding: 12px 14px;
+  border: 1px solid #cbd5cf;
+  vertical-align: top;
+}
+
+.tiptap-shell .ProseMirror th {
+  width: 28%;
+  background: #f3f7f5;
+  color: var(--ink);
+  font-weight: 800;
+}
+
+.tiptap-shell .ProseMirror td:first-child {
+  width: 28%;
+  background: #f8faf9;
+  color: var(--ink);
+  font-weight: 750;
+}
+
+.tiptap-shell .ProseMirror .selectedCell::after {
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 127, 108, 0.1);
+  content: "";
+  pointer-events: none;
 }
 
 .tiptap-shell .ProseMirror ul[data-type="taskList"] {
@@ -3042,7 +3016,4 @@ body {
     grid-template-columns: 1fr;
   }
 
-  .work-progress-field {
-    grid-column: auto;
-  }
 }

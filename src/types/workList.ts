@@ -7,7 +7,6 @@ export type Work = {
   workTitle: string;
   workCnnt: string;
   workStatus: WorkStatus;
-  workProgress: number;
   createdAt: string;
   updatedAt: string;
 };
@@ -19,5 +18,4 @@ export type WorkPayload = Pick<
   | "workTitle"
   | "workCnnt"
   | "workStatus"
-  | "workProgress"
 >;
