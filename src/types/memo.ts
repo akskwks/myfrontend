@@ -1,4 +1,4 @@
-export type MemoSort = "general" | "work" | "code" | "todo" | "etc";
+export type MemoSort = "general" | "code" | "todo" | "etc";
 
 export type Memo = {
   memoId: number;

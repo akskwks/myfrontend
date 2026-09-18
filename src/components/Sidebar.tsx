@@ -1,4 +1,5 @@
 import {
+  BriefcaseBusiness,
   CalendarDays,
   Home,
   MessageSquareText,
@@ -6,12 +7,13 @@ import {
   Sparkles,
 } from "lucide-react";
 
-export type AppSection = "main" | "calendar" | "memo" | "ai";
+export type AppSection = "main" | "calendar" | "memo" | "work" | "ai";
 
 const menuItems = [
   { key: "main", label: "홈", href: "#/", icon: Home },
   { key: "calendar", label: "캘린더", href: "#/calendar", icon: CalendarDays },
   { key: "memo", label: "메모", href: "#/memos", icon: NotebookPen },
+  { key: "work", label: "업무", href: "#/works", icon: BriefcaseBusiness },
   { key: "ai", label: "AI 챗봇", href: "#/ai", icon: MessageSquareText },
 ] as const;
 
@@ -44,8 +46,8 @@ export function Sidebar({ active }: { active: AppSection }) {
       <div className="sidebar-status">
         <Sparkles size={17} aria-hidden="true" />
         <span>
-          <strong>Local AI</strong>
-          <small>Qwen 2.5</small>
+          <strong>Created By MJ</strong>
+          <small>© 2026 MyApp</small>
         </span>
       </div>
     </aside>

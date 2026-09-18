@@ -1,12 +1,15 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { createMemo, getMemo, updateMemo } from "../api/memoApi";
-import { TiptapMemoEditor } from "../components/TiptapMemoEditor";
+import { TiptapEditor } from "../components/TiptapEditor";
 import type { Memo, MemoPayload, MemoTemplateOption } from "../types/memo";
 
 export const memoSorts: MemoTemplateOption[] = [
   { value: "general", label: "일반", placeholder: "자유롭게 작성하세요." },
-  { value: "work", label: "업무", placeholder: "업무 진행사항을 작성하세요." },
-  { value: "code", label: "코드", placeholder: "코드와 설명을 함께 작성하세요." },
+  {
+    value: "code",
+    label: "코드",
+    placeholder: "코드와 설명을 함께 작성하세요.",
+  },
   { value: "todo", label: "TODO", placeholder: "체크리스트를 작성하세요." },
   { value: "etc", label: "기타", placeholder: "자유롭게 작성하세요." },
 ];
@@ -21,21 +24,6 @@ const emptyPayload: MemoPayload = {
 };
 
 function getTemplate(sort: Memo["memoSort"]) {
-  if (sort === "work") {
-    return `
-      <h2>업무 내용</h2>
-      <p>내용을 입력하세요.</p>
-      <h2>진행 상태 / 진행률</h2>
-      <p>진행 상태 및 진행률을 작성하세요.</p>
-      <h2>주요 작업 내용</h2>
-      <ul><li><p>작업 내용을 작성하세요.</p></li></ul>
-      <h2>이슈 / 특이사항</h2>
-      <p>내용을 작성하세요.</p>
-      <h2>다음 작업</h2>
-      <ul><li><p>다음 작업을 작성하세요.</p></li></ul>
-    `;
-  }
-
   if (sort === "code") {
     return `
       <p>설명</p>
@@ -160,14 +148,15 @@ export function MemoCreate({ memoId }: { memoId?: number }) {
           </label>
           <div>
             <span className="field-label">내용</span>
-            <TiptapMemoEditor
+            <TiptapEditor
               content={payload.memoCnnt || "<p></p>"}
               editable
               onChange={changeMemoContent}
             />
           </div>
           <p className="editor-helper-text">
-            제목, 목록, 체크리스트, 코드 블록, 링크를 하나의 에디터에서 작성할 수 있습니다.
+            제목, 목록, 체크리스트, 코드 블록, 링크를 하나의 에디터에서 작성할
+            수 있습니다.
           </p>
           <p className="form-error" role="alert">
             {error}

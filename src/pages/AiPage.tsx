@@ -23,7 +23,7 @@ import type { AiConversation, ChatMessage } from "../types/aichat";
 const suggestions = [
   "오늘 일정 알려줘.",
   "내일 오후 3시에 프로젝트 회의 일정 추가해줘.",
-  "오늘 작성한 업무 메모를 요약해줘.",
+  "오늘 진행한 업무를 요약해줘.",
 ];
 
 export function AiPage() {
@@ -34,7 +34,9 @@ export function AiPage() {
   const [loading, setLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
   const [error, setError] = useState("");
-  const [editingConversationId, setEditingConversationId] = useState<number | null>(null);
+  const [editingConversationId, setEditingConversationId] = useState<
+    number | null
+  >(null);
   const [conversationTitle, setConversationTitle] = useState("");
   const chatEndRef = useRef<HTMLDivElement>(null);
 
@@ -208,7 +210,7 @@ export function AiPage() {
         <div>
           <p className="eyebrow">AI Chat</p>
           <h1>AI 챗봇</h1>
-          <p>일정과 메모를 자연어로 조회하고 정리할 수 있습니다.</p>
+          <p>다양한 질문 및 일정과 메모를 조회하고 정리할 수 있습니다.</p>
         </div>
         <span className="stage-badge">Ollama · Qwen 2.5</span>
       </header>
@@ -244,8 +246,12 @@ export function AiPage() {
                     aria-label="대화 제목"
                     autoFocus
                     onFocus={(event) => event.currentTarget.select()}
-                    onChange={(event) => setConversationTitle(event.target.value)}
-                    onBlur={() => saveConversationTitle(conversation.conversationId)}
+                    onChange={(event) =>
+                      setConversationTitle(event.target.value)
+                    }
+                    onBlur={() =>
+                      saveConversationTitle(conversation.conversationId)
+                    }
                     onKeyDown={(event) => {
                       if (event.key === "Enter") {
                         event.preventDefault();
@@ -264,13 +270,19 @@ export function AiPage() {
                     onClick={() => setSelectedId(conversation.conversationId)}
                   >
                     <strong>{conversation.title}</strong>
-                    <span>{formatConversationDate(conversation.updatedAt)}</span>
+                    <span>
+                      {formatConversationDate(conversation.updatedAt)}
+                    </span>
                   </button>
                 )}
                 <button
                   className="conversation-edit"
                   type="button"
-                  title={editingConversationId === conversation.conversationId ? "제목 저장" : "대화명 수정"}
+                  title={
+                    editingConversationId === conversation.conversationId
+                      ? "제목 저장"
+                      : "대화명 수정"
+                  }
                   aria-label={`${conversation.title} ${editingConversationId === conversation.conversationId ? "제목 저장" : "대화명 수정"}`}
                   onMouseDown={(event) => event.preventDefault()}
                   onClick={() =>

@@ -29,17 +29,17 @@ const extensions = [
   }),
 ];
 
-type TiptapMemoEditorProps = {
+type TiptapEditorProps = {
   content: string;
   editable: boolean;
   onChange?: (html: string) => void;
 };
 
-export function TiptapMemoEditor({
+export function TiptapEditor({
   content,
   editable,
   onChange,
-}: TiptapMemoEditorProps) {
+}: TiptapEditorProps) {
   const editor = useEditor({
     extensions,
     content,
@@ -70,7 +70,7 @@ export function TiptapMemoEditor({
 
 function TiptapToolbar({ editor }: { editor: Editor }) {
   return (
-    <div className="tiptap-toolbar" aria-label="메모 편집 도구">
+    <div className="tiptap-toolbar" aria-label="문서 편집 도구">
       <button
         className={editor.isActive("bold") ? "is-active" : ""}
         type="button"

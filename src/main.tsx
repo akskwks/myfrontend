@@ -5,6 +5,7 @@ import { AiPage } from "./pages/AiPage";
 import { CalendarPage } from "./pages/CalendarPage";
 import { MainPage } from "./pages/MainPage";
 import { MemoPage } from "./pages/MemoPage";
+import { WorkPage } from "./pages/WorkPage";
 
 function App() {
   const [hash, setHash] = useState(location.hash);
@@ -21,6 +22,7 @@ function App() {
   const [path] = hash.slice(1).split("?");
   if (path === "/calendar") return <CalendarPage />;
   if (path === "/memos" || path.startsWith("/memos/")) return <MemoPage />;
+  if (path === "/works" || path.startsWith("/works/")) return <WorkPage />;
   if (path === "/ai") {
     return <AiPage />;
   }

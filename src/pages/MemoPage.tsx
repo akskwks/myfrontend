@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { deleteMemo, getMemo, getMemos, updateMemo } from "../api/memoApi";
 import { AppShell } from "../components/AppShell";
-import { TiptapMemoEditor } from "../components/TiptapMemoEditor";
+import { TiptapEditor } from "../components/TiptapEditor";
 import type { Memo } from "../types/memo";
 import { MemoCreate, memoSorts, templateLabel } from "./MemoCreate";
 
@@ -400,7 +400,7 @@ function MemoDetailView({
         </div>
       </dl>
 
-      <TiptapMemoEditor
+      <TiptapEditor
         content={draft.memoCnnt || "<p></p>"}
         editable={editing}
         onChange={(memoCnnt) => setDraft({ ...draft, memoCnnt })}

@@ -1,4 +1,8 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
+import DatePicker, { registerLocale } from "react-datepicker";
+import { ko } from "date-fns/locale";
+import { CalendarDays, Clock3 } from "lucide-react";
+import "react-datepicker/dist/react-datepicker.css";
 import {
   createCalendarEvent,
   deleteCalendarEvent,
@@ -8,8 +12,10 @@ import {
 import { AppShell } from "../components/AppShell";
 import type { CalendarEvent, CalendarEventPayload } from "../types/calendar";
 
+registerLocale("ko", ko);
+
 const categoryLabels: Record<CalendarEvent["eventCatg"], string> = {
-  personal: "개인",
+  personal: "일반",
   work: "업무",
   study: "학습",
   etc: "기타",
@@ -43,6 +49,32 @@ function toDateText(date: Date) {
   const month = `${date.getMonth() + 1}`.padStart(2, "0");
   const day = `${date.getDate()}`.padStart(2, "0");
   return `${year}-${month}-${day}`;
+}
+
+function toDateValue(value: string) {
+  const [year, month, day] = value.split("-").map(Number);
+  return new Date(year, month - 1, day);
+}
+
+function toTimeValue(dateText: string, timeText: string) {
+  const date = toDateValue(dateText);
+  const [hour, minute] = timeText.split(":").map(Number);
+  date.setHours(hour, minute, 0, 0);
+  return date;
+}
+
+function toTimeText(date: Date) {
+  return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+}
+
+function minutesOfDay(date: Date) {
+  return date.getHours() * 60 + date.getMinutes();
+}
+
+function timeAt(dateText: string, minutes: number) {
+  const date = toDateValue(dateText);
+  date.setHours(Math.floor(minutes / 60), minutes % 60, 0, 0);
+  return date;
 }
 
 function getMonthDays(monthDate: Date) {
@@ -97,6 +129,37 @@ export function CalendarPage() {
     setSelectedDate(date);
     setEditingId(null);
     setPayload(emptyPayload(date));
+  }
+
+  function changeEventDate(date: Date | null) {
+    if (!date) return;
+    const eventDate = toDateText(date);
+    setPayload((current) => ({ ...current, eventDate }));
+    setSelectedDate(eventDate);
+    setMonthDate(new Date(date.getFullYear(), date.getMonth(), 1));
+  }
+
+  function changeStartTime(date: Date | null) {
+    if (!date) return;
+    const startMinutes = minutesOfDay(date);
+    const currentEndMinutes = minutesOfDay(
+      toTimeValue(payload.eventDate, payload.endTime),
+    );
+    const endMinutes =
+      currentEndMinutes > startMinutes
+        ? currentEndMinutes
+        : Math.min(startMinutes + 60, 23 * 60 + 45);
+
+    setPayload((current) => ({
+      ...current,
+      startTime: toTimeText(date),
+      endTime: toTimeText(timeAt(current.eventDate, endMinutes)),
+    }));
+  }
+
+  function changeEndTime(date: Date | null) {
+    if (!date) return;
+    setPayload((current) => ({ ...current, endTime: toTimeText(date) }));
   }
 
   function startEdit(event: CalendarEvent) {
@@ -283,14 +346,26 @@ export function CalendarPage() {
             <div className="form-grid">
               <label>
                 날짜
-                <input
-                  required
-                  type="date"
-                  value={payload.eventDate}
-                  onChange={(event) =>
-                    setPayload({ ...payload, eventDate: event.target.value })
-                  }
-                />
+                <div className="date-picker-control">
+                  <CalendarDays size={17} aria-hidden="true" />
+                  <DatePicker
+                    required
+                    selected={toDateValue(payload.eventDate)}
+                    onChange={changeEventDate}
+                    locale="ko"
+                    dateFormat="yyyy-MM-dd"
+                    calendarStartDay={0}
+                    showMonthDropdown
+                    showYearDropdown
+                    dropdownMode="select"
+                    todayButton="오늘"
+                    popperPlacement="top-end"
+                    showPopperArrow={false}
+                    className="date-picker-input"
+                    calendarClassName="myapp-date-picker"
+                    aria-label="일정 날짜"
+                  />
+                </div>
               </label>
               <label>
                 분류
@@ -314,26 +389,55 @@ export function CalendarPage() {
             </div>
             <div className="form-grid">
               <label>
-                시작
-                <input
-                  required
-                  type="time"
-                  value={payload.startTime}
-                  onChange={(event) =>
-                    setPayload({ ...payload, startTime: event.target.value })
-                  }
-                />
+                시작 시간
+                <div className="date-picker-control">
+                  <Clock3 size={17} aria-hidden="true" />
+                  <DatePicker
+                    required
+                    selected={toTimeValue(payload.eventDate, payload.startTime)}
+                    onChange={changeStartTime}
+                    locale="ko"
+                    showTimeSelect
+                    showTimeSelectOnly
+                    timeIntervals={15}
+                    timeCaption="시작"
+                    dateFormat="HH:mm"
+                    filterTime={(time) => minutesOfDay(time) <= 23 * 60 + 30}
+                    popperPlacement="top-end"
+                    showPopperArrow={false}
+                    className="date-picker-input"
+                    calendarClassName="myapp-time-picker"
+                    aria-label="시작 시간"
+                  />
+                </div>
               </label>
               <label>
-                종료
-                <input
-                  required
-                  type="time"
-                  value={payload.endTime}
-                  onChange={(event) =>
-                    setPayload({ ...payload, endTime: event.target.value })
-                  }
-                />
+                종료 시간
+                <div className="date-picker-control">
+                  <Clock3 size={17} aria-hidden="true" />
+                  <DatePicker
+                    required
+                    selected={toTimeValue(payload.eventDate, payload.endTime)}
+                    onChange={changeEndTime}
+                    locale="ko"
+                    showTimeSelect
+                    showTimeSelectOnly
+                    timeIntervals={15}
+                    timeCaption="종료"
+                    dateFormat="HH:mm"
+                    filterTime={(time) =>
+                      minutesOfDay(time) >
+                      minutesOfDay(
+                        toTimeValue(payload.eventDate, payload.startTime),
+                      )
+                    }
+                    popperPlacement="top-end"
+                    showPopperArrow={false}
+                    className="date-picker-input"
+                    calendarClassName="myapp-time-picker"
+                    aria-label="종료 시간"
+                  />
+                </div>
               </label>
             </div>
             <div className="color-row">

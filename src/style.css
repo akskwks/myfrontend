@@ -601,6 +601,99 @@ h3 {
   gap: 10px;
 }
 
+.date-picker-control {
+  position: relative;
+  min-width: 0;
+}
+
+.date-picker-control > svg {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  z-index: 1;
+  color: var(--accent-dark);
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
+.date-picker-control .react-datepicker-wrapper,
+.date-picker-control .react-datepicker__input-container {
+  display: block;
+  width: 100%;
+}
+
+.stack-form .date-picker-input {
+  padding-left: 38px;
+  cursor: pointer;
+}
+
+.react-datepicker-popper {
+  z-index: 40;
+}
+
+.myapp-date-picker,
+.myapp-time-picker {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 18px 42px rgba(31, 44, 38, 0.16);
+  color: var(--text);
+  font-family: inherit;
+}
+
+.myapp-date-picker .react-datepicker__header,
+.myapp-time-picker .react-datepicker__header {
+  border-bottom: 1px solid var(--line);
+  background: #f5f9f7;
+}
+
+.myapp-date-picker .react-datepicker__current-month,
+.myapp-date-picker .react-datepicker__day-name,
+.myapp-time-picker .react-datepicker-time__header {
+  color: var(--text);
+}
+
+.myapp-date-picker .react-datepicker__month-select,
+.myapp-date-picker .react-datepicker__year-select {
+  margin: 2px 3px;
+  padding: 5px 7px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: #fff;
+  color: var(--text);
+}
+
+.myapp-date-picker .react-datepicker__day:hover,
+.myapp-time-picker .react-datepicker__time-list-item:hover {
+  background: var(--accent-soft) !important;
+  color: var(--accent-dark);
+}
+
+.myapp-date-picker .react-datepicker__day--selected,
+.myapp-date-picker .react-datepicker__day--keyboard-selected,
+.myapp-time-picker .react-datepicker__time-list-item--selected {
+  background: var(--accent) !important;
+  color: #fff !important;
+}
+
+.myapp-date-picker .react-datepicker__today-button {
+  border-top: 1px solid var(--line);
+  background: #fff;
+  color: var(--accent-dark);
+  font-weight: 800;
+}
+
+.myapp-time-picker .react-datepicker__time-container,
+.myapp-time-picker .react-datepicker__time-box {
+  width: 132px !important;
+}
+
+.myapp-time-picker .react-datepicker__time-list {
+  width: 132px !important;
+  height: 230px !important;
+}
+
 .color-row {
   display: flex;
   gap: 8px;
@@ -688,7 +781,10 @@ h3 {
 
 .memo-page-panel,
 .memo-detail-panel,
-.memo-form-panel {
+.memo-form-panel,
+.work-page-panel,
+.work-detail-panel,
+.work-form-panel {
   margin: 0 auto 28px;
   padding: 24px;
   border: 1px solid var(--line);
@@ -880,6 +976,316 @@ h3 {
 
 .memo-editor-form {
   margin-top: 18px;
+}
+
+.work-page-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.work-page-actions > span {
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.work-list-tools {
+  display: flex;
+  width: min(330px, 100%);
+  align-items: end;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.work-list-tools label {
+  display: grid;
+  min-width: 0;
+  flex: 1;
+  gap: 7px;
+  color: var(--ink);
+  font-size: 0.9rem;
+  font-weight: 750;
+}
+
+.work-list-tools .date-picker-input {
+  width: 100%;
+  padding: 11px 12px 11px 38px;
+  border: 1px solid #cbd5cf;
+  border-radius: 7px;
+  outline: none;
+  background: #fff;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.work-list-tools .date-picker-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(8, 127, 108, 0.12);
+}
+
+.work-board-wrap {
+  min-height: 0;
+  flex: 1;
+  overflow: auto;
+  margin-top: 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fff;
+}
+
+.work-board-table {
+  width: 100%;
+  min-width: 900px;
+  border-collapse: collapse;
+}
+
+.work-board-table th,
+.work-board-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.work-board-table th {
+  background: #f7faf8;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 850;
+}
+
+.work-board-table th:first-child,
+.work-board-table td:first-child {
+  width: 125px;
+  white-space: nowrap;
+}
+
+.work-board-table th:nth-child(2),
+.work-board-table td:nth-child(2) {
+  width: 110px;
+}
+
+.work-board-table th:nth-child(4),
+.work-board-table td:nth-child(4) {
+  width: 190px;
+}
+
+.work-board-table th:last-child,
+.work-board-table td:last-child {
+  width: 155px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.work-board-table tbody tr {
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.work-board-table tbody tr:hover,
+.work-board-table tbody tr:focus-visible {
+  background: #f3fbf7;
+  outline: none;
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+.work-board-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.work-board-title {
+  max-width: 420px;
+  overflow: hidden;
+  color: var(--ink);
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.work-status-badge {
+  display: inline-flex;
+  min-width: 58px;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: #e9edf0;
+  color: #52606a;
+  font-size: 0.82rem;
+  font-weight: 850;
+}
+
+.work-status-badge.is-in_progress {
+  background: #e0efff;
+  color: #175b9c;
+}
+
+.work-status-badge.is-completed {
+  background: var(--accent-soft);
+  color: var(--accent-dark);
+}
+
+.work-status-badge.is-on_hold {
+  background: #fff0d5;
+  color: #9a5b00;
+}
+
+.work-progress-compact,
+.work-progress-detail {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.work-progress-compact > span,
+.work-progress-detail > span {
+  height: 7px;
+  flex: 1;
+  overflow: hidden;
+  border-radius: 4px;
+  background: #e6ece9;
+}
+
+.work-progress-compact i,
+.work-progress-detail i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+}
+
+.work-progress-compact b,
+.work-progress-detail b {
+  min-width: 42px;
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.work-structured-fields {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.work-progress-field {
+  grid-column: 1 / -1;
+}
+
+.work-progress-field > span {
+  display: flex;
+  justify-content: space-between;
+}
+
+.work-progress-field output {
+  color: var(--accent-dark);
+  font-variant-numeric: tabular-nums;
+  font-weight: 850;
+}
+
+.work-progress-field input[type="range"] {
+  padding: 0;
+  accent-color: var(--accent);
+}
+
+.work-editor-form {
+  margin-top: 18px;
+}
+
+.work-form-panel .tiptap-shell .ProseMirror {
+  min-height: 420px;
+}
+
+.work-detail-meta {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1px;
+  overflow: hidden;
+  margin: 22px 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--line);
+}
+
+.work-detail-meta > div {
+  min-width: 0;
+  min-height: 90px;
+  padding: 16px;
+  background: #fff;
+}
+
+.work-detail-meta dt {
+  margin-bottom: 7px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.work-detail-meta dd {
+  margin: 0;
+  color: var(--ink);
+  font-weight: 750;
+}
+
+.work-detail-meta select,
+.work-detail-meta .date-picker-input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #cbd5cf;
+  border-radius: 7px;
+  outline: none;
+  background: #fff;
+  color: var(--text);
+}
+
+.work-detail-meta .date-picker-input {
+  padding-left: 36px;
+}
+
+.compact-progress {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.compact-progress input {
+  min-width: 70px;
+  flex: 1;
+  accent-color: var(--accent);
+}
+
+.work-progress-detail > span {
+  min-width: 70px;
+}
+
+.work-title-input {
+  width: min(640px, 100%);
+  padding: 8px 10px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  outline: none;
+  background: transparent;
+  color: var(--ink);
+  font-size: 1.55rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.work-title-input:hover,
+.work-title-input:focus {
+  border-color: var(--accent);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(8, 127, 108, 0.1);
+}
+
+.work-save-status {
+  min-height: 28px;
+  padding-top: 8px;
+}
+
+.work-save-status .form-error {
+  margin: 0;
 }
 
 .field-label {
@@ -1765,6 +2171,7 @@ body {
 
 .calendar-page-content,
 .memo-page-content,
+.work-page-content,
 .ai-page-content {
   display: flex;
   min-height: 0;
@@ -1774,6 +2181,7 @@ body {
 
 .calendar-page-content > .page-header,
 .memo-page-content > .page-header,
+.work-page-content > .page-header,
 .ai-page-content > .page-header {
   min-height: 138px;
   flex: 0 0 auto;
@@ -1800,7 +2208,10 @@ body {
 
 .memo-page-content > .memo-page-panel,
 .memo-page-content > .memo-detail-panel,
-.memo-page-content > .memo-form-panel {
+.memo-page-content > .memo-form-panel,
+.work-page-content > .work-page-panel,
+.work-page-content > .work-detail-panel,
+.work-page-content > .work-form-panel {
   width: 100%;
   min-height: 0;
   flex: 1;
@@ -1810,6 +2221,11 @@ body {
 }
 
 .memo-page-content > .memo-list-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.work-page-content > .work-list-panel {
   display: flex;
   flex-direction: column;
 }
@@ -1950,8 +2366,7 @@ body {
   background: rgba(34, 167, 142, 0.34);
 }
 
-.home-capabilities,
-.home-examples {
+.home-capabilities {
   padding: 48px 8px;
 }
 
@@ -1964,7 +2379,7 @@ body {
 }
 
 .home-section-heading h2,
-.home-examples h2 {
+.home-bottom-grid h2 {
   margin-bottom: 0;
 }
 
@@ -1976,7 +2391,7 @@ body {
 
 .capability-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 14px;
 }
 
@@ -2014,21 +2429,152 @@ body {
   color: var(--muted);
 }
 
-.home-examples {
+.home-bottom-grid {
   display: grid;
-  grid-template-columns: minmax(220px, 0.65fr) minmax(0, 1.35fr);
-  gap: 34px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  height: 360px;
+  padding: 40px 8px 48px;
   border-top: 1px solid var(--line);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.home-today,
+.home-examples {
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  flex-direction: column;
+}
+
+.home-today {
+  padding-right: 34px;
+  border-right: 1px solid var(--line);
+}
+
+.home-examples {
+  padding-left: 34px;
+}
+
+.home-bottom-heading {
+  display: flex;
+  min-height: 56px;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+
+.home-panel-link {
+  display: inline-grid;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  color: var(--muted);
+  transition:
+    border-color 160ms ease,
+    color 160ms ease,
+    background 160ms ease;
+}
+
+.home-panel-link:hover {
+  border-color: rgba(8, 127, 108, 0.4);
+  background: var(--accent-soft);
+  color: var(--accent-dark);
+}
+
+.today-event-list,
+.example-prompts {
+  min-height: 0;
+  flex: 1;
+}
+
+.today-event-list {
+  display: grid;
+  align-content: start;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.today-event {
+  position: relative;
+  display: grid;
+  grid-template-columns: 48px max-content minmax(0, 1fr);
+  min-height: 52px;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px 10px 13px;
+  border-bottom: 1px solid var(--line);
+  color: var(--text);
+  text-decoration: none;
+  transition:
+    color 160ms ease,
+    background 160ms ease;
+}
+
+.today-event:hover {
+  background: #f3f8f5;
+  color: var(--accent-dark);
+}
+
+.today-event time {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+.today-event-category {
+  padding: 3px 7px;
+  border-radius: 5px;
+  background: var(--accent-soft);
+  color: var(--accent-dark);
+  font-size: 0.76rem;
+  font-weight: 750;
+}
+
+.today-event strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.today-event-color {
+  position: absolute;
+  right: 3px;
+  width: 4px;
+  height: 22px;
+  border-radius: 2px;
+}
+
+.home-empty-state {
+  display: grid;
+  min-height: 156px;
+  place-items: center;
+  margin: 0;
+  color: var(--muted);
+  text-align: center;
 }
 
 .example-prompts {
   display: grid;
-  gap: 8px;
+  align-content: start;
+  gap: 4px;
 }
 
 .example-prompts a {
   display: flex;
-  min-height: 52px;
+  min-height: 48px;
   align-items: center;
   justify-content: space-between;
   gap: 14px;
@@ -2051,6 +2597,7 @@ body {
 
   .calendar-page-content,
   .memo-page-content,
+  .work-page-content,
   .ai-page-content {
     padding-inline: 16px;
   }
@@ -2070,6 +2617,10 @@ body {
 
   .home-hero-copy {
     width: min(720px, 82%);
+  }
+
+  .capability-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -2113,12 +2664,14 @@ body {
 
   .calendar-page-content,
   .memo-page-content,
+  .work-page-content,
   .ai-page-content {
     padding: 0 10px 10px;
   }
 
   .calendar-page-content > .page-header,
   .memo-page-content > .page-header,
+  .work-page-content > .page-header,
   .ai-page-content > .page-header {
     min-height: 108px;
     padding: 14px 2px 12px;
@@ -2208,12 +2761,59 @@ body {
   }
 
   .home-section-heading,
-  .home-examples {
+  .home-bottom-grid {
     display: grid;
     grid-template-columns: 1fr;
   }
 
+  .home-bottom-grid {
+    height: auto;
+    gap: 32px;
+  }
+
+  .home-today,
+  .home-examples {
+    padding-inline: 0;
+    border-right: 0;
+  }
+
+  .home-today {
+    padding-bottom: 32px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .today-event-list {
+    max-height: 260px;
+  }
+
   .capability-grid {
     grid-template-columns: 1fr;
+  }
+
+  .work-detail-meta {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .work-page-actions,
+  .work-detail-panel .button-group {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .work-page-actions .primary-button,
+  .work-detail-panel .button-group .secondary-button,
+  .work-detail-panel .button-group .primary-button {
+    width: 100%;
+  }
+
+  .work-detail-meta,
+  .work-structured-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .work-progress-field {
+    grid-column: auto;
   }
 }
