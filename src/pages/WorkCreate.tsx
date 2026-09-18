@@ -4,7 +4,7 @@ import { ko } from "date-fns/locale";
 import { CalendarDays } from "lucide-react";
 import { createWork } from "../api/workApi";
 import { TiptapEditor } from "../components/TiptapEditor";
-import type { WorkPayload, WorkStatus } from "../types/work";
+import type { WorkPayload, WorkStatus } from "../types/workList";
 
 registerLocale("ko", ko);
 
@@ -39,11 +39,14 @@ export function toDateValue(value: string) {
   return new Date(year, month - 1, day);
 }
 
-function goToWork(path = "") {
-  location.hash = path ? `#/works/${path}` : "#/works";
+function goToProjectWork(projectId: number, path = "") {
+  location.hash = path
+    ? `#/works/${projectId}/${path}`
+    : `#/works/${projectId}`;
 }
 
-const emptyPayload = (): WorkPayload => ({
+const emptyPayload = (projectId: number): WorkPayload => ({
+  projectId,
   workDate: toDateText(new Date()),
   workTitle: "",
   workCnnt: workTemplate,
@@ -51,8 +54,16 @@ const emptyPayload = (): WorkPayload => ({
   workProgress: 0,
 });
 
-export function WorkCreate() {
-  const [payload, setPayload] = useState<WorkPayload>(emptyPayload);
+export function WorkCreate({
+  projectId,
+  projectName,
+}: {
+  projectId: number;
+  projectName: string;
+}) {
+  const [payload, setPayload] = useState<WorkPayload>(() =>
+    emptyPayload(projectId),
+  );
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -70,7 +81,7 @@ export function WorkCreate() {
         ...payload,
         workTitle: payload.workTitle.trim(),
       });
-      goToWork(String(saved.workId));
+      goToProjectWork(projectId, String(saved.workId));
     } catch {
       setError("업무를 저장하지 못했습니다.");
     } finally {
@@ -82,13 +93,13 @@ export function WorkCreate() {
     <section className="work-form-panel">
       <div className="section-heading">
         <div>
-          <p className="eyebrow">Work editor</p>
+          <p className="eyebrow">{projectName}</p>
           <h2>업무 등록</h2>
         </div>
         <button
           className="secondary-button compact"
           type="button"
-          onClick={() => goToWork()}
+          onClick={() => goToProjectWork(projectId)}
         >
           목록
         </button>
@@ -192,7 +203,7 @@ export function WorkCreate() {
           <button
             className="secondary-button"
             type="button"
-            onClick={() => goToWork()}
+            onClick={() => goToProjectWork(projectId)}
           >
             취소
           </button>

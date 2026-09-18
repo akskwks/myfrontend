@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import DatePicker, { registerLocale } from "react-datepicker";
 import { ko } from "date-fns/locale";
-import { CalendarDays, RotateCcw } from "lucide-react";
+import { CalendarDays, ChevronLeft, RotateCcw } from "lucide-react";
 import { deleteWork, getWork, getWorks, updateWork } from "../api/workApi";
+import { getWorkProject } from "../api/projectApi";
 import { AppShell } from "../components/AppShell";
 import { TiptapEditor } from "../components/TiptapEditor";
-import type { Work, WorkPayload, WorkStatus } from "../types/work";
+import type { Work, WorkPayload, WorkStatus } from "../types/workList";
+import type { WorkProject } from "../types/projectList";
 import {
   toDateText,
   toDateValue,
@@ -13,22 +15,42 @@ import {
   workStatusLabel,
   workStatusOptions,
 } from "./WorkCreate";
+import { WorkProjectList } from "./WorkProjectList";
 
 registerLocale("ko", ko);
 
-type WorkRoute = { mode: "list" | "new" | "detail"; workId: number | null };
+type WorkRoute = {
+  mode: "projects" | "list" | "new" | "detail";
+  projectId: number | null;
+  workId: number | null;
+};
 
 function parseWorkRoute(): WorkRoute {
   const [path] = location.hash.slice(1).split("?");
   const parts = path.split("/").filter(Boolean);
-  const workId = Number(parts[1]);
-  if (parts[1] === "new") return { mode: "new", workId: null };
-  if (Number.isFinite(workId)) return { mode: "detail", workId };
-  return { mode: "list", workId: null };
+  const projectId = Number(parts[1]);
+  const workId = Number(parts[2]);
+
+  if (!Number.isFinite(projectId)) {
+    return { mode: "projects", projectId: null, workId: null };
+  }
+  if (parts[2] === "new") {
+    return { mode: "new", projectId, workId: null };
+  }
+  if (Number.isFinite(workId)) {
+    return { mode: "detail", projectId, workId };
+  }
+  return { mode: "list", projectId, workId: null };
 }
 
-function goToWork(path = "") {
-  location.hash = path ? `#/works/${path}` : "#/works";
+function goToProjects() {
+  location.hash = "#/works";
+}
+
+function goToProject(projectId: number, path = "") {
+  location.hash = path
+    ? `#/works/${projectId}/${path}`
+    : `#/works/${projectId}`;
 }
 
 const pad = (value: number) => String(value).padStart(2, "0");
@@ -47,31 +69,106 @@ export function WorkPage() {
         <div>
           <p className="eyebrow">Work</p>
           <h1>업무</h1>
-          <p>수행 업무와 진행상황을 날짜별로 기록하고 관리합니다.</p>
+          <p>근무 환경과 프로젝트별로 수행 업무 및 진행상황을 관리합니다.</p>
         </div>
         <a className="secondary-button" href="#/memos">
           메모장으로 이동
         </a>
       </header>
 
-      {route.mode === "list" && <WorkListView />}
-      {route.mode === "new" && <WorkCreate />}
-      {route.mode === "detail" && route.workId && (
-        <WorkDetailView workId={route.workId} />
-      )}
+      {route.mode === "projects" ? (
+        <WorkProjectList />
+      ) : route.projectId ? (
+        <ProjectWorkView route={route} projectId={route.projectId} />
+      ) : null}
     </AppShell>
   );
 }
 
-function WorkListView() {
+function ProjectWorkView({
+  route,
+  projectId,
+}: {
+  route: WorkRoute;
+  projectId: number;
+}) {
+  const [project, setProject] = useState<WorkProject | null>(null);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    getWorkProject(projectId)
+      .then(setProject)
+      .catch(() => setError("프로젝트 정보를 불러오지 못했습니다."));
+  }, [projectId]);
+
+  if (error) {
+    return (
+      <section className="work-page-panel">
+        <p className="form-error" role="alert">
+          {error}
+        </p>
+        <button
+          className="secondary-button"
+          type="button"
+          onClick={goToProjects}
+        >
+          프로젝트 목록
+        </button>
+      </section>
+    );
+  }
+
+  if (!project) {
+    return (
+      <section className="work-page-panel">
+        <p>프로젝트를 불러오고 있습니다.</p>
+      </section>
+    );
+  }
+
+  if (route.mode === "new") {
+    return (
+      <WorkCreate projectId={projectId} projectName={project.projectName} />
+    );
+  }
+  if (route.mode === "detail" && route.workId) {
+    return <WorkDetailView project={project} workId={route.workId} />;
+  }
+  return <WorkListView project={project} />;
+}
+
+function ProjectHeading({ project }: { project: WorkProject }) {
+  return (
+    <div className="project-context-heading">
+      <button
+        className="icon-button"
+        type="button"
+        title="프로젝트 목록"
+        onClick={goToProjects}
+      >
+        <ChevronLeft size={18} aria-hidden="true" />
+      </button>
+      <div>
+        <p className="eyebrow">Project work</p>
+        <h2>{project.projectName}</h2>
+      </div>
+    </div>
+  );
+}
+
+function WorkListView({ project }: { project: WorkProject }) {
   const [works, setWorks] = useState<Work[]>([]);
   const [dateFilter, setDateFilter] = useState("");
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   async function loadWorks(nextDate = dateFilter) {
     setLoading(true);
     try {
-      setWorks(await getWorks(nextDate));
+      setWorks(await getWorks(project.projectId, nextDate));
+      setError("");
+    } catch {
+      setError("업무 목록을 불러오지 못했습니다.");
     } finally {
       setLoading(false);
     }
@@ -79,7 +176,7 @@ function WorkListView() {
 
   useEffect(() => {
     loadWorks("");
-  }, []);
+  }, [project.projectId]);
 
   function changeDate(date: Date | null) {
     const nextDate = date ? toDateText(date) : "";
@@ -90,16 +187,13 @@ function WorkListView() {
   return (
     <section className="work-list-panel work-page-panel">
       <div className="section-heading">
-        <div>
-          <p className="eyebrow">Work list</p>
-          <h2>업무 목록</h2>
-        </div>
+        <ProjectHeading project={project} />
         <div className="work-page-actions">
           <span>{loading ? "불러오는 중..." : `${works.length}개의 업무`}</span>
           <button
             className="primary-button compact"
             type="button"
-            onClick={() => goToWork("new")}
+            onClick={() => goToProject(project.projectId, "new")}
           >
             업무 등록
           </button>
@@ -141,11 +235,16 @@ function WorkListView() {
         </button>
       </div>
 
+      {error && (
+        <p className="form-error" role="alert">
+          {error}
+        </p>
+      )}
       <div className="work-board-wrap" aria-live="polite">
         {!loading && works.length === 0 ? (
           <div className="empty-state">
             <h3>표시할 업무가 없습니다.</h3>
-            <p>업무 등록 버튼을 눌러 첫 업무 기록을 작성하세요.</p>
+            <p>업무 등록 버튼을 눌러 이 프로젝트의 첫 업무를 작성하세요.</p>
           </div>
         ) : (
           <table className="work-board-table">
@@ -163,11 +262,13 @@ function WorkListView() {
                 <tr
                   key={work.workId}
                   tabIndex={0}
-                  onClick={() => goToWork(String(work.workId))}
+                  onClick={() =>
+                    goToProject(project.projectId, String(work.workId))
+                  }
                   onKeyDown={(event) => {
                     if (event.key === "Enter" || event.key === " ") {
                       event.preventDefault();
-                      goToWork(String(work.workId));
+                      goToProject(project.projectId, String(work.workId));
                     }
                   }}
                 >
@@ -197,24 +298,22 @@ function WorkListView() {
   );
 }
 
-function WorkDetailView({ workId }: { workId: number }) {
+function WorkDetailView({
+  project,
+  workId,
+}: {
+  project: WorkProject;
+  workId: number;
+}) {
   const [work, setWork] = useState<Work | null>(null);
   const [draft, setDraft] = useState<WorkPayload | null>(null);
   const [editing, setEditing] = useState(false);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    getWork(workId)
-      .then((item) => {
-        setWork(item);
-        setDraft(toPayload(item));
-      })
-      .catch(() => setError("업무를 불러오지 못했습니다."));
-  }, [workId]);
-
   function toPayload(item: Work): WorkPayload {
     return {
+      projectId: item.projectId,
       workDate: item.workDate,
       workTitle: item.workTitle,
       workCnnt: item.workCnnt,
@@ -222,6 +321,17 @@ function WorkDetailView({ workId }: { workId: number }) {
       workProgress: item.workProgress,
     };
   }
+
+  useEffect(() => {
+    getWork(workId)
+      .then((item) => {
+        if (item.projectId !== project.projectId)
+          throw new Error("Project mismatch");
+        setWork(item);
+        setDraft(toPayload(item));
+      })
+      .catch(() => setError("업무를 불러오지 못했습니다."));
+  }, [project.projectId, workId]);
 
   function startEdit() {
     if (!work) return;
@@ -242,7 +352,6 @@ function WorkDetailView({ workId }: { workId: number }) {
       setError("업무 제목을 입력하세요.");
       return;
     }
-
     setSaving(true);
     setError("");
     try {
@@ -263,20 +372,25 @@ function WorkDetailView({ workId }: { workId: number }) {
   async function remove() {
     if (!window.confirm("이 업무 기록을 삭제할까요?")) return;
     await deleteWork(workId);
-    goToWork();
+    goToProject(project.projectId);
   }
 
   if (error && !work) {
     return (
       <section className="work-detail-panel">
-        <p className="form-error" role="alert">{error}</p>
-        <button className="secondary-button" type="button" onClick={() => goToWork()}>
-          목록으로
+        <p className="form-error" role="alert">
+          {error}
+        </p>
+        <button
+          className="secondary-button"
+          type="button"
+          onClick={() => goToProject(project.projectId)}
+        >
+          업무 목록
         </button>
       </section>
     );
   }
-
   if (!work || !draft) {
     return (
       <section className="work-detail-panel">
@@ -289,7 +403,13 @@ function WorkDetailView({ workId }: { workId: number }) {
     <section className="work-detail-panel">
       <div className="section-heading">
         <div>
-          <p className="eyebrow">Work detail</p>
+          <button
+            className="work-detail-back"
+            type="button"
+            onClick={() => goToProject(project.projectId)}
+          >
+            <ChevronLeft size={17} aria-hidden="true" /> {project.projectName}
+          </button>
           {editing ? (
             <input
               className="work-title-input"
@@ -305,24 +425,38 @@ function WorkDetailView({ workId }: { workId: number }) {
           )}
         </div>
         <div className="button-group">
-          <button className="secondary-button compact" type="button" onClick={() => goToWork()}>
-            목록
-          </button>
           {editing ? (
             <>
-              <button className="primary-button compact" type="button" disabled={saving} onClick={saveEdit}>
+              <button
+                className="primary-button compact"
+                type="button"
+                disabled={saving}
+                onClick={saveEdit}
+              >
                 {saving ? "저장 중..." : "저장"}
               </button>
-              <button className="secondary-button compact" type="button" onClick={cancelEdit}>
+              <button
+                className="secondary-button compact"
+                type="button"
+                onClick={cancelEdit}
+              >
                 취소
               </button>
             </>
           ) : (
             <>
-              <button className="secondary-button compact" type="button" onClick={startEdit}>
+              <button
+                className="secondary-button compact"
+                type="button"
+                onClick={startEdit}
+              >
                 수정
               </button>
-              <button className="secondary-button compact danger-text" type="button" onClick={remove}>
+              <button
+                className="secondary-button compact danger-text"
+                type="button"
+                onClick={remove}
+              >
                 삭제
               </button>
             </>
@@ -355,7 +489,9 @@ function WorkDetailView({ workId }: { workId: number }) {
                   aria-label="업무일자"
                 />
               </div>
-            ) : work.workDate}
+            ) : (
+              work.workDate
+            )}
           </dd>
         </div>
         <div>
@@ -365,11 +501,16 @@ function WorkDetailView({ workId }: { workId: number }) {
               <select
                 value={draft.workStatus}
                 onChange={(event) =>
-                  setDraft({ ...draft, workStatus: event.target.value as WorkStatus })
+                  setDraft({
+                    ...draft,
+                    workStatus: event.target.value as WorkStatus,
+                  })
                 }
               >
                 {workStatusOptions.map((option) => (
-                  <option key={option.value} value={option.value}>{option.label}</option>
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
                 ))}
               </select>
             ) : (
@@ -391,14 +532,19 @@ function WorkDetailView({ workId }: { workId: number }) {
                   step="5"
                   value={draft.workProgress}
                   onChange={(event) =>
-                    setDraft({ ...draft, workProgress: Number(event.target.value) })
+                    setDraft({
+                      ...draft,
+                      workProgress: Number(event.target.value),
+                    })
                   }
                 />
                 <output>{draft.workProgress}%</output>
               </label>
             ) : (
               <div className="work-progress-detail">
-                <span><i style={{ width: `${work.workProgress}%` }} /></span>
+                <span>
+                  <i style={{ width: `${work.workProgress}%` }} />
+                </span>
                 <b>{work.workProgress}%</b>
               </div>
             )}
@@ -416,7 +562,11 @@ function WorkDetailView({ workId }: { workId: number }) {
         onChange={(workCnnt) => setDraft({ ...draft, workCnnt })}
       />
       <div className="work-save-status" aria-live="polite">
-        {error && <p className="form-error" role="alert">{error}</p>}
+        {error && (
+          <p className="form-error" role="alert">
+            {error}
+          </p>
+        )}
       </div>
     </section>
   );

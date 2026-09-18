@@ -2,6 +2,7 @@ export type WorkStatus = "planned" | "in_progress" | "completed" | "on_hold";
 
 export type Work = {
   workId: number;
+  projectId: number;
   workDate: string;
   workTitle: string;
   workCnnt: string;
@@ -13,5 +14,10 @@ export type Work = {
 
 export type WorkPayload = Pick<
   Work,
-  "workDate" | "workTitle" | "workCnnt" | "workStatus" | "workProgress"
+  | "projectId"
+  | "workDate"
+  | "workTitle"
+  | "workCnnt"
+  | "workStatus"
+  | "workProgress"
 >;

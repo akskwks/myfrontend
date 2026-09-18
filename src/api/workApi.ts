@@ -1,5 +1,5 @@
 import { ApiError, jsonHeaders, request } from "./http";
-import type { Work, WorkPayload } from "../types/work";
+import type { Work, WorkPayload } from "../types/workList";
 
 const WORK_API_URL = "/api/works";
 const LOCAL_KEY = "myapp.works";
@@ -18,17 +18,22 @@ function writeLocal(works: Work[]) {
 
 function sortWorks(works: Work[]) {
   return [...works].sort((a, b) =>
-    `${b.workDate} ${b.updatedAt}`.localeCompare(`${a.workDate} ${a.updatedAt}`),
+    `${b.workDate} ${b.updatedAt}`.localeCompare(
+      `${a.workDate} ${a.updatedAt}`,
+    ),
   );
 }
 
-export async function getWorks(workDate = "") {
+export async function getWorks(projectId: number, workDate = "") {
   try {
-    const query = workDate ? `?date=${encodeURIComponent(workDate)}` : "";
-    return await request<Work[]>(`${WORK_API_URL}${query}`);
+    const params = new URLSearchParams({ projectId: String(projectId) });
+    if (workDate) params.set("date", workDate);
+    return await request<Work[]>(`${WORK_API_URL}?${params}`);
   } catch (error) {
     if (error instanceof ApiError) throw error;
-    const works = sortWorks(readLocal());
+    const works = sortWorks(readLocal()).filter(
+      (work) => work.projectId === projectId,
+    );
     return workDate
       ? works.filter((work) => work.workDate === workDate)
       : works;

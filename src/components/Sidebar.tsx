@@ -12,8 +12,8 @@ export type AppSection = "main" | "calendar" | "memo" | "work" | "ai";
 const menuItems = [
   { key: "main", label: "홈", href: "#/", icon: Home },
   { key: "calendar", label: "캘린더", href: "#/calendar", icon: CalendarDays },
-  { key: "memo", label: "메모", href: "#/memos", icon: NotebookPen },
   { key: "work", label: "업무", href: "#/works", icon: BriefcaseBusiness },
+  { key: "memo", label: "메모", href: "#/memos", icon: NotebookPen },
   { key: "ai", label: "AI 챗봇", href: "#/ai", icon: MessageSquareText },
 ] as const;
 
