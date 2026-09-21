@@ -386,6 +386,7 @@ function ProjectEditorRow({
           dropdownMode="select"
           portalId="project-datepicker-portal"
           popperPlacement="bottom-start"
+          popperProps={{ strategy: "fixed" }}
           showPopperArrow={false}
           popperClassName="project-date-picker-popper"
           className="project-date-input"
@@ -407,7 +408,8 @@ function ProjectEditorRow({
           showYearDropdown
           dropdownMode="select"
           portalId="project-datepicker-portal"
-          popperPlacement="bottom-start"
+          popperPlacement="bottom-end"
+          popperProps={{ strategy: "fixed" }}
           showPopperArrow={false}
           popperClassName="project-date-picker-popper"
           className="project-date-input"

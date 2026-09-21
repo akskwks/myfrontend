@@ -132,7 +132,6 @@ h3 {
   border: 1px solid var(--accent);
   background: var(--accent);
   color: #fff;
-  box-shadow: 0 12px 28px rgba(8, 127, 108, 0.2);
 }
 
 .secondary-button {
@@ -144,7 +143,7 @@ h3 {
 .primary-button:hover,
 .secondary-button:hover {
   transform: translateY(-1px);
-  box-shadow: 0 14px 30px rgba(31, 44, 38, 0.12);
+  box-shadow: 0 5px 5px rgba(31, 44, 38, 0.12);
 }
 
 .primary-button:disabled,
@@ -1113,7 +1112,7 @@ h3 {
   border-radius: 999px;
   background: #e9edf0;
   color: #52606a;
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   font-weight: 850;
 }
 
@@ -1324,7 +1323,7 @@ h3 {
   border-radius: 999px;
   background: #e8f1ff;
   color: #275b91;
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   font-weight: 850;
 }
 
@@ -1458,9 +1457,9 @@ h3 {
 
 .tiptap-shell {
   overflow: hidden;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: #fbfcfb;
+  border: 1px solid #d9e3ea;
+  border-radius: 4px;
+  background: #fff;
 }
 
 .tiptap-shell.is-editable {
@@ -1470,30 +1469,64 @@ h3 {
 .tiptap-toolbar {
   display: flex;
   flex-wrap: wrap;
-  gap: 7px;
-  padding: 10px;
-  border-bottom: 1px solid var(--line);
-  background: #f8faf9;
+  align-items: center;
+  gap: 5px;
+  min-height: 39px;
+  padding: 7px 13px;
+  border-bottom: 1px solid #edf1f4;
+  background: #fff;
 }
 
 .tiptap-toolbar button {
   display: inline-grid;
-  min-width: 34px;
-  min-height: 32px;
+  width: 28px;
+  height: 26px;
   place-items: center;
-  padding: 6px 9px;
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  background: #fff;
-  color: var(--text);
-  font-weight: 750;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: #1f2937;
+  font-size: 0.7rem;
+  font-weight: 800;
+  line-height: 1;
+  transition:
+    background 150ms ease,
+    color 150ms ease;
 }
 
 .tiptap-toolbar button:hover,
 .tiptap-toolbar button.is-active {
-  border-color: var(--accent);
-  background: var(--accent-soft);
-  color: var(--accent-dark);
+  background: #f1f5f9;
+  color: #0f766e;
+}
+
+.tiptap-toolbar button.is-danger:hover {
+  background: #fff1f0;
+  color: var(--danger);
+}
+
+.tiptap-toolbar button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.tiptap-toolbar button sub {
+  font-size: 0.48rem;
+  line-height: 0;
+}
+
+.tiptap-toolbar-divider {
+  width: 1px;
+  height: 18px;
+  margin: 0 2px;
+  background: #e2e8f0;
+}
+
+.tiptap-table-tools {
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
 .toolbar-underlined {
@@ -1503,9 +1536,11 @@ h3 {
 
 .tiptap-shell .ProseMirror {
   min-height: 360px;
-  padding: 22px;
+  padding: 13px;
   outline: none;
   color: var(--text);
+  font-size: 0.94rem;
+  line-height: 1.6;
 }
 
 .memo-form-panel .tiptap-shell .ProseMirror {
@@ -3015,5 +3050,4 @@ body {
   .work-structured-fields {
     grid-template-columns: 1fr;
   }
-
 }
