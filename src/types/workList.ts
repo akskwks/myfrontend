@@ -13,9 +13,15 @@ export type Work = {
 
 export type WorkPayload = Pick<
   Work,
-  | "projectId"
-  | "workDate"
-  | "workTitle"
-  | "workCnnt"
-  | "workStatus"
+  "projectId" | "workDate" | "workTitle" | "workCnnt" | "workStatus"
 >;
+
+export type WorkFile = {
+  workFileId: number;
+  workId: number;
+  orgnFileName: string;
+  fileExtension: string;
+  mimeType: string;
+  fileSize: number;
+  createdAt: string;
+};

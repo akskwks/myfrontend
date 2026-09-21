@@ -20,9 +20,15 @@ export async function request<T>(url: string, options?: RequestInit): Promise<T>
   if (!response.ok) {
     const errorBody = await response
       .json()
-      .catch(() => null) as { message?: string; code?: string } | null;
+      .catch(() => null) as {
+        message?: string;
+        detail?: string;
+        code?: string;
+      } | null;
     throw new ApiError(
-      errorBody?.message ?? `요청 처리에 실패했습니다. (${response.status})`,
+      errorBody?.message ??
+        errorBody?.detail ??
+        `요청 처리에 실패했습니다. (${response.status})`,
       response.status,
       errorBody?.code,
     );

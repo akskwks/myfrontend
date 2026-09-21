@@ -1,10 +1,8 @@
-import { ApiError, jsonHeaders, request } from "./http";
-import type { Work, WorkPayload } from "../types/workList";
+import { ApiError, request } from "./http";
+import type { Work, WorkFile, WorkPayload } from "../types/workList";
 
 const WORK_API_URL = "/api/works";
 const LOCAL_KEY = "myapp.works";
-
-const now = () => new Date().toISOString();
 
 function readLocal(): Work[] {
   const raw = localStorage.getItem(LOCAL_KEY);
@@ -51,43 +49,25 @@ export async function getWork(workId: number) {
   }
 }
 
-export async function createWork(payload: WorkPayload) {
-  try {
-    return await request<Work>(WORK_API_URL, {
-      method: "POST",
-      headers: jsonHeaders,
-      body: JSON.stringify(payload),
-    });
-  } catch (error) {
-    if (error instanceof ApiError) throw error;
-    const work: Work = {
-      workId: Date.now(),
-      ...payload,
-      createdAt: now(),
-      updatedAt: now(),
-    };
-    writeLocal(sortWorks([...readLocal(), work]));
-    return work;
-  }
+export async function createWork(payload: WorkPayload, files: File[] = []) {
+  const formData = createWorkFormData(payload, files);
+  return await request<Work>(`${WORK_API_URL}/with-files`, {
+    method: "POST",
+    body: formData,
+  });
 }
 
-export async function updateWork(workId: number, payload: WorkPayload) {
-  try {
-    return await request<Work>(`${WORK_API_URL}/${workId}`, {
-      method: "PUT",
-      headers: jsonHeaders,
-      body: JSON.stringify(payload),
-    });
-  } catch (error) {
-    if (error instanceof ApiError) throw error;
-    const works = readLocal().map((work) =>
-      work.workId === workId ? { ...work, ...payload, updatedAt: now() } : work,
-    );
-    writeLocal(sortWorks(works));
-    const updated = works.find((work) => work.workId === workId);
-    if (!updated) throw new Error("Work was not found.");
-    return updated;
-  }
+export async function updateWork(
+  workId: number,
+  payload: WorkPayload,
+  files: File[] = [],
+  deletedFileIds: number[] = [],
+) {
+  const formData = createWorkFormData(payload, files, deletedFileIds);
+  return await request<Work>(`${WORK_API_URL}/${workId}/with-files`, {
+    method: "PUT",
+    body: formData,
+  });
 }
 
 export async function deleteWork(workId: number) {
@@ -97,4 +77,33 @@ export async function deleteWork(workId: number) {
     if (error instanceof ApiError) throw error;
     writeLocal(readLocal().filter((work) => work.workId !== workId));
   }
+}
+
+export async function getWorkFiles(workId: number) {
+  return await request<WorkFile[]>(`${WORK_API_URL}/${workId}/files`);
+}
+
+export function getWorkFileContentUrl(workFileId: number) {
+  return `/api/work-files/${workFileId}/content`;
+}
+
+export function getWorkFileDownloadUrl(workFileId: number) {
+  return `/api/work-files/${workFileId}/download`;
+}
+
+function createWorkFormData(
+  payload: WorkPayload,
+  files: File[],
+  deletedFileIds: number[] = [],
+) {
+  const formData = new FormData();
+  formData.append(
+    "work",
+    new Blob([JSON.stringify(payload)], { type: "application/json" }),
+  );
+  files.forEach((file) => formData.append("files", file));
+  deletedFileIds.forEach((fileId) =>
+    formData.append("deletedFileIds", String(fileId)),
+  );
+  return formData;
 }

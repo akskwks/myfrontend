@@ -2,11 +2,19 @@ import { useEffect, useMemo, useState } from "react";
 import DatePicker, { registerLocale } from "react-datepicker";
 import { ko } from "date-fns/locale";
 import { CalendarDays, ChevronLeft, RotateCcw } from "lucide-react";
-import { deleteWork, getWork, getWorks, updateWork } from "../api/workApi";
+import {
+  deleteWork,
+  getWork,
+  getWorkFiles,
+  getWorks,
+  updateWork,
+} from "../api/workApi";
+import { ApiError } from "../api/http";
 import { getWorkProject } from "../api/projectApi";
 import { AppShell } from "../components/AppShell";
 import { TiptapEditor } from "../components/TiptapEditor";
-import type { Work, WorkPayload, WorkStatus } from "../types/workList";
+import { WorkAttachments } from "../components/WorkAttachments";
+import type { Work, WorkFile, WorkPayload, WorkStatus } from "../types/workList";
 import type { WorkProject } from "../types/projectList";
 import {
   toDateText,
@@ -301,6 +309,9 @@ function WorkDetailView({
   const [editing, setEditing] = useState(false);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
+  const [workFiles, setWorkFiles] = useState<WorkFile[]>([]);
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+  const [deletedFileIds, setDeletedFileIds] = useState<number[]>([]);
 
   function toPayload(item: Work): WorkPayload {
     return {
@@ -313,12 +324,13 @@ function WorkDetailView({
   }
 
   useEffect(() => {
-    getWork(workId)
-      .then((item) => {
+    Promise.all([getWork(workId), getWorkFiles(workId)])
+      .then(([item, files]) => {
         if (item.projectId !== project.projectId)
           throw new Error("Project mismatch");
         setWork(item);
         setDraft(toPayload(item));
+        setWorkFiles(files);
       })
       .catch(() => setError("업무를 불러오지 못했습니다."));
   }, [project.projectId, workId]);
@@ -326,6 +338,8 @@ function WorkDetailView({
   function startEdit() {
     if (!work) return;
     setDraft(toPayload(work));
+    setPendingFiles([]);
+    setDeletedFileIds([]);
     setError("");
     setEditing(true);
   }
@@ -333,6 +347,8 @@ function WorkDetailView({
   function cancelEdit() {
     if (!work) return;
     setDraft(toPayload(work));
+    setPendingFiles([]);
+    setDeletedFileIds([]);
     setError("");
     setEditing(false);
   }
@@ -345,15 +361,31 @@ function WorkDetailView({
     setSaving(true);
     setError("");
     try {
-      const saved = await updateWork(workId, {
-        ...draft,
-        workTitle: draft.workTitle.trim(),
-      });
+      const saved = await updateWork(
+        workId,
+        {
+          ...draft,
+          workTitle: draft.workTitle.trim(),
+        },
+        pendingFiles,
+        deletedFileIds,
+      );
       setWork(saved);
       setDraft(toPayload(saved));
+      setPendingFiles([]);
+      setDeletedFileIds([]);
       setEditing(false);
-    } catch {
-      setError("업무를 저장하지 못했습니다.");
+      try {
+        setWorkFiles(await getWorkFiles(workId));
+      } catch {
+        setError("업무는 저장되었지만 첨부파일 목록을 다시 불러오지 못했습니다.");
+      }
+    } catch (caught) {
+      setError(
+        caught instanceof ApiError
+          ? caught.message
+          : "업무를 저장하지 못했습니다.",
+      );
     } finally {
       setSaving(false);
     }
@@ -520,6 +552,24 @@ function WorkDetailView({
         content={draft.workCnnt || "<p></p>"}
         editable={editing}
         onChange={(workCnnt) => setDraft({ ...draft, workCnnt })}
+      />
+      <WorkAttachments
+        existingFiles={workFiles.filter(
+          (file) => !deletedFileIds.includes(file.workFileId),
+        )}
+        pendingFiles={pendingFiles}
+        editable={editing}
+        onAddFiles={(selected) =>
+          setPendingFiles((current) => [...current, ...selected])
+        }
+        onRemoveExisting={(fileId) =>
+          setDeletedFileIds((current) => [...current, fileId])
+        }
+        onRemovePending={(index) =>
+          setPendingFiles((current) =>
+            current.filter((_, itemIndex) => itemIndex !== index),
+          )
+        }
       />
       <div className="work-save-status" aria-live="polite">
         {error && (

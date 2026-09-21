@@ -3,7 +3,9 @@ import DatePicker, { registerLocale } from "react-datepicker";
 import { ko } from "date-fns/locale";
 import { CalendarDays } from "lucide-react";
 import { createWork } from "../api/workApi";
+import { ApiError } from "../api/http";
 import { TiptapEditor } from "../components/TiptapEditor";
+import { WorkAttachments } from "../components/WorkAttachments";
 import type { WorkPayload, WorkStatus } from "../types/workList";
 
 registerLocale("ko", ko);
@@ -69,6 +71,7 @@ export function WorkCreate({
   );
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
+  const [files, setFiles] = useState<File[]>([]);
 
   async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -80,13 +83,20 @@ export function WorkCreate({
     setSaving(true);
     setError("");
     try {
-      const saved = await createWork({
-        ...payload,
-        workTitle: payload.workTitle.trim(),
-      });
+      const saved = await createWork(
+        {
+          ...payload,
+          workTitle: payload.workTitle.trim(),
+        },
+        files,
+      );
       goToProjectWork(projectId, String(saved.workId));
-    } catch {
-      setError("업무를 저장하지 못했습니다.");
+    } catch (caught) {
+      setError(
+        caught instanceof ApiError
+          ? caught.message
+          : "업무를 저장하지 못했습니다.",
+      );
     } finally {
       setSaving(false);
     }
@@ -179,6 +189,14 @@ export function WorkCreate({
           표의 각 셀에서 주요 작업, 이슈, 다음 작업을 자유롭게 작성할 수
           있습니다.
         </p>
+        <WorkAttachments
+          editable
+          pendingFiles={files}
+          onAddFiles={(selected) => setFiles((current) => [...current, ...selected])}
+          onRemovePending={(index) =>
+            setFiles((current) => current.filter((_, itemIndex) => itemIndex !== index))
+          }
+        />
         {error && (
           <p className="form-error" role="alert">
             {error}
