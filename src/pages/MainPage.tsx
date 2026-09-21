@@ -8,9 +8,15 @@ import {
   FileSearch,
 } from "lucide-react";
 import { getCalendarEvents } from "../api/calendarApi";
+import { getWorkProjects } from "../api/projectApi";
 import heroImg from "../assets/hero.png";
 import { AppShell } from "../components/AppShell";
 import type { CalendarEvent } from "../types/calendar";
+import type {
+  ProjectStatus,
+  WorkEnvironment,
+  WorkProject,
+} from "../types/projectList";
 
 const capabilities = [
   {
@@ -37,18 +43,23 @@ const capabilities = [
   },
 ];
 
-const examples = [
-  "오늘 일정 알려줘",
-  "내일 오후 3시에 회의 일정 추가해줘",
-  "이번 주 업무 정리해줘",
-  "Docker 관련 메모 찾아줘",
-];
-
 const categoryLabels: Record<CalendarEvent["eventCatg"], string> = {
   personal: "일반",
   work: "업무",
   study: "학습",
   etc: "기타",
+};
+
+const environmentLabels: Record<WorkEnvironment, string> = {
+  office: "내근",
+  dispatch: "파견",
+};
+
+const projectStatusLabels: Record<ProjectStatus, string> = {
+  planned: "예정",
+  in_progress: "진행중",
+  completed: "완료",
+  on_hold: "보류",
 };
 
 function toDateText(date: Date) {
@@ -60,7 +71,10 @@ function toDateText(date: Date) {
 
 export function MainPage() {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const [projects, setProjects] = useState<WorkProject[]>([]);
   const [isLoadingEvents, setIsLoadingEvents] = useState(true);
+  const [isLoadingProjects, setIsLoadingProjects] = useState(true);
+  const [projectError, setProjectError] = useState("");
   const today = toDateText(new Date());
   const todayEvents = useMemo(
     () =>
@@ -75,6 +89,16 @@ export function MainPage() {
       .then(setEvents)
       .catch(() => setEvents([]))
       .finally(() => setIsLoadingEvents(false));
+  }, []);
+
+  useEffect(() => {
+    getWorkProjects()
+      .then(setProjects)
+      .catch(() => {
+        setProjects([]);
+        setProjectError("프로젝트 목록을 불러오지 못했습니다.");
+      })
+      .finally(() => setIsLoadingProjects(false));
   }, []);
 
   return (
@@ -132,7 +156,7 @@ export function MainPage() {
 
       <section
         className="home-bottom-grid"
-        aria-label="오늘의 일정과 AI 활용 예시"
+        aria-label="오늘의 일정과 업무 및 프로젝트 관리"
       >
         <section className="home-today" aria-labelledby="today-title">
           <div className="home-bottom-heading">
@@ -180,20 +204,44 @@ export function MainPage() {
           </div>
         </section>
 
-        <section className="home-examples" aria-labelledby="example-title">
+        <section className="home-projects" aria-labelledby="project-title">
           <div className="home-bottom-heading">
             <div>
-              <p className="eyebrow">Try asking</p>
-              <h2 id="example-title">이렇게 요청해 보세요</h2>
+              <p className="eyebrow">Projects</p>
+              <h2 id="project-title">업무 및 프로젝트 관리</h2>
             </div>
+            <a className="home-panel-link" href="#/works" title="프로젝트 관리 열기">
+              <BriefcaseBusiness size={19} aria-hidden="true" />
+              <span className="sr-only">프로젝트 관리 열기</span>
+            </a>
           </div>
-          <div className="example-prompts">
-            {examples.map((example) => (
-              <a href="#/ai" key={example}>
-                <span>{example}</span>
-                <ArrowRight size={17} aria-hidden="true" />
-              </a>
-            ))}
+          <div className="home-project-list" aria-live="polite">
+            {isLoadingProjects ? (
+              <p className="home-empty-state">프로젝트를 불러오고 있습니다.</p>
+            ) : projectError ? (
+              <p className="home-empty-state is-error">{projectError}</p>
+            ) : projects.length === 0 ? (
+              <p className="home-empty-state">등록된 프로젝트가 없습니다.</p>
+            ) : (
+              projects.map((project) => (
+                <a
+                  className="home-project-item"
+                  href={`#/works/${project.projectId}`}
+                  key={project.projectId}
+                >
+                  <div className="home-project-main">
+                    <strong>{project.projectName}</strong>
+                    <span>{project.startDate} - {project.endDate}</span>
+                  </div>
+                  <span className={`environment-badge is-${project.workEnvironment}`}>
+                    {environmentLabels[project.workEnvironment]}
+                  </span>
+                  <span className={`work-status-badge is-${project.projectStatus}`}>
+                    {projectStatusLabels[project.projectStatus]}
+                  </span>
+                </a>
+              ))
+            )}
           </div>
         </section>
       </section>
