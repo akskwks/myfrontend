@@ -570,11 +570,12 @@ h3 {
 .stack-form textarea,
 .stack-form select,
 .search-form input,
+.search-form select,
 .chat-input-row textarea {
   width: 100%;
   border: 1px solid #cbd5cf;
   border-radius: 7px;
-  padding: 11px 12px;
+  padding: 5px 6px;
   outline: none;
   color: var(--text);
   background: #fff;
@@ -589,6 +590,7 @@ h3 {
 .stack-form textarea:focus,
 .stack-form select:focus,
 .search-form input:focus,
+.search-form select:focus,
 .chat-input-row textarea:focus {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(8, 127, 108, 0.12);
@@ -732,7 +734,7 @@ h3 {
 
 .search-form {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: 80px minmax(0, 1fr) auto;
   gap: 10px;
   margin: 18px 0;
 }

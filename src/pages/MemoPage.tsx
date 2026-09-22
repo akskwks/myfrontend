@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { deleteMemo, getMemo, getMemos, updateMemo } from "../api/memoApi";
 import { AppShell } from "../components/AppShell";
 import { TiptapEditor } from "../components/TiptapEditor";
-import type { Memo } from "../types/memo";
+import type { Memo, MemoSort } from "../types/memo";
 import { MemoCreate, memoSorts, templateLabel } from "./MemoCreate";
 
 const pad = (value: number) => String(value).padStart(2, "0");
@@ -87,16 +87,17 @@ export function MemoPage() {
 function MemoListView() {
   const [memos, setMemos] = useState<Memo[]>([]);
   const [keyword, setKeyword] = useState("");
+  const [memoSort, setMemoSort] = useState<MemoSort | "">("");
   const [message, setMessage] = useState("메모를 불러오고 있습니다.");
 
-  async function loadMemos(nextKeyword = keyword) {
-    const items = await getMemos(nextKeyword);
+  async function loadMemos(nextKeyword = keyword, nextMemoSort = memoSort) {
+    const items = await getMemos(nextKeyword, nextMemoSort);
     setMemos(items);
     setMessage(`${items.length}개의 메모가 표시됩니다.`);
   }
 
   useEffect(() => {
-    loadMemos("");
+    loadMemos("", "");
   }, []);
 
   return (
@@ -122,9 +123,21 @@ function MemoListView() {
         className="search-form"
         onSubmit={(event) => {
           event.preventDefault();
-          loadMemos(keyword);
+          loadMemos(keyword, memoSort);
         }}
       >
+        <select
+          aria-label="메모 분류"
+          value={memoSort}
+          onChange={(event) => setMemoSort(event.target.value as MemoSort | "")}
+        >
+          <option value="">선택</option>
+          {memoSorts.map((sort) => (
+            <option key={sort.value} value={sort.value}>
+              {sort.label}
+            </option>
+          ))}
+        </select>
         <input
           value={keyword}
           onChange={(event) => setKeyword(event.target.value)}

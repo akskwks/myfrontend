@@ -1,5 +1,5 @@
 import { jsonHeaders, request } from "./http";
-import type { Memo, MemoPayload } from "../types/memo";
+import type { Memo, MemoPayload, MemoSort } from "../types/memo";
 
 const MEMO_API_URL = "/api/memos";
 const LOCAL_KEY = "myapp.memos";
@@ -20,20 +20,22 @@ function sortMemos(memos: Memo[]) {
   return [...memos].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
 }
 
-export async function getMemos(keyword = "") {
+export async function getMemos(keyword = "", memoSort: MemoSort | "" = "") {
   try {
-    const query = keyword.trim()
-      ? `?keyword=${encodeURIComponent(keyword.trim())}`
-      : "";
+    const params = new URLSearchParams();
+    if (keyword.trim()) params.set("keyword", keyword.trim());
+    if (memoSort) params.set("memoSort", memoSort);
+    const query = params.size ? `?${params.toString()}` : "";
     return await request<Memo[]>(`${MEMO_API_URL}${query}`);
   } catch {
     const term = keyword.trim().toLowerCase();
     const memos = sortMemos(readLocal());
-    if (!term) return memos;
     return memos.filter(
       (memo) =>
-        memo.memoTitle.toLowerCase().includes(term) ||
-        memo.memoCnnt.toLowerCase().includes(term),
+        (!memoSort || memo.memoSort === memoSort) &&
+        (!term ||
+          memo.memoTitle.toLowerCase().includes(term) ||
+          memo.memoCnnt.toLowerCase().includes(term)),
     );
   }
 }
