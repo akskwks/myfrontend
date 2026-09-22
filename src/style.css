@@ -1483,15 +1483,15 @@ h3 {
   justify-content: center;
   padding: 5px 9px;
   border-radius: 999px;
-  background: #e8f1ff;
-  color: #275b91;
+  background: #4d7199;
+  color: #e8f1ff;
   font-size: 0.85rem;
   font-weight: 850;
 }
 
 .environment-badge.is-dispatch {
-  background: #f1eafa;
-  color: #6c3d8d;
+  background: #785292;
+  color: #f1eafa;
 }
 
 .project-editor-row {
