@@ -1,6 +1,6 @@
 import type {
   AiChatRequest,
-  AiChatResponse,
+  AiChatJob,
   AiConversation,
   ChatMessage,
 } from "../types/aichat";
@@ -9,12 +9,16 @@ import { jsonHeaders, request } from "./http";
 const AI_CHAT_API_URL = "/api/ai/chat";
 const AI_CONVERSATION_API_URL = "/api/ai/conversations";
 
-export async function askLlm(payload: AiChatRequest): Promise<AiChatResponse> {
-  return request<AiChatResponse>(AI_CHAT_API_URL, {
+export async function startAiRequest(payload: AiChatRequest) {
+  return request<AiChatJob>(AI_CHAT_API_URL, {
     method: "POST",
     headers: jsonHeaders,
     body: JSON.stringify(payload),
   });
+}
+
+export function getAiRequest(requestId: string) {
+  return request<AiChatJob>(`${AI_CHAT_API_URL}/${requestId}`);
 }
 
 export function getConversations() {

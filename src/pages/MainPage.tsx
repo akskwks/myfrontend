@@ -34,7 +34,8 @@ const capabilities = [
   {
     icon: BriefcaseBusiness,
     title: "업무 진행 관리",
-    description: "프로젝트별 수행 업무와 진행 상태를 날짜별로 기록하고 확인합니다.",
+    description:
+      "프로젝트별 수행 업무와 진행 상태를 날짜별로 기록하고 확인합니다.",
   },
   {
     icon: Bot,
@@ -58,7 +59,7 @@ const environmentLabels: Record<WorkEnvironment, string> = {
 const projectStatusLabels: Record<ProjectStatus, string> = {
   planned: "예정",
   in_progress: "진행중",
-  completed: "완료",
+  completed: "종료",
   on_hold: "보류",
 };
 
@@ -109,8 +110,8 @@ export function MainPage() {
           <p className="eyebrow">Personal AI workspace</p>
           <h1>MyApp AI Assistant</h1>
           <p>
-            일정과 메모, 업무를 관리하고 한 문장의 질문으로 필요한 기록을
-            찾고 정리하세요.
+            일정과 메모, 업무를 관리하고 한 문장의 질문으로 필요한 기록을 찾고
+            정리하세요.
           </p>
           <div className="hero-actions">
             <a className="primary-button" href="#/ai">
@@ -210,7 +211,11 @@ export function MainPage() {
               <p className="eyebrow">Projects</p>
               <h2 id="project-title">업무 및 프로젝트 관리</h2>
             </div>
-            <a className="home-panel-link" href="#/works" title="프로젝트 관리 열기">
+            <a
+              className="home-panel-link"
+              href="#/works"
+              title="프로젝트 관리 열기"
+            >
               <BriefcaseBusiness size={19} aria-hidden="true" />
               <span className="sr-only">프로젝트 관리 열기</span>
             </a>
@@ -231,12 +236,18 @@ export function MainPage() {
                 >
                   <div className="home-project-main">
                     <strong>{project.projectName}</strong>
-                    <span>{project.startDate} - {project.endDate}</span>
+                    <span>
+                      {project.startDate} - {project.endDate}
+                    </span>
                   </div>
-                  <span className={`environment-badge is-${project.workEnvironment}`}>
+                  <span
+                    className={`environment-badge is-${project.workEnvironment}`}
+                  >
                     {environmentLabels[project.workEnvironment]}
                   </span>
-                  <span className={`work-status-badge is-${project.projectStatus}`}>
+                  <span
+                    className={`work-status-badge is-${project.projectStatus}`}
+                  >
                     {projectStatusLabels[project.projectStatus]}
                   </span>
                 </a>

@@ -33,7 +33,7 @@ const environmentOptions: { value: WorkEnvironment; label: string }[] = [
 const projectStatusOptions: { value: ProjectStatus; label: string }[] = [
   { value: "planned", label: "예정" },
   { value: "in_progress", label: "진행중" },
-  { value: "completed", label: "완료" },
+  { value: "completed", label: "종료" },
   { value: "on_hold", label: "보류" },
 ];
 

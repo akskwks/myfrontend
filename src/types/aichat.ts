@@ -3,10 +3,12 @@ export type AiChatRequest = {
   message: string;
 };
 
-export type AiChatResponse = {
+export type AiChatJob = {
+  requestId: string;
   conversationId: number;
-  answer: string;
-  message: ChatMessage;
+  status: "processing" | "completed";
+  failed: boolean;
+  message: ChatMessage | null;
 };
 
 export type ChatMessage = {

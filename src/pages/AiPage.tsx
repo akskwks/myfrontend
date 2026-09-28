@@ -9,16 +9,39 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Check, Pencil, X } from "lucide-react";
 import {
-  askLlm,
   createConversation,
   deleteConversation,
+  getAiRequest,
   getConversationMessages,
   getConversations,
+  startAiRequest,
   updateConversationTitle,
 } from "../api/aichatApi";
 import { ApiError } from "../api/http";
 import { AppShell } from "../components/AppShell";
-import type { AiConversation, ChatMessage } from "../types/aichat";
+import type { AiConversation, AiChatJob, ChatMessage } from "../types/aichat";
+
+const PENDING_AI_REQUEST_KEY = "myapp.ai.pending-request";
+
+type PendingAiRequest = Pick<AiChatJob, "requestId" | "conversationId">;
+
+function readPendingRequest(): PendingAiRequest | null {
+  try {
+    const value = localStorage.getItem(PENDING_AI_REQUEST_KEY);
+    return value ? (JSON.parse(value) as PendingAiRequest) : null;
+  } catch {
+    localStorage.removeItem(PENDING_AI_REQUEST_KEY);
+    return null;
+  }
+}
+
+function savePendingRequest(request: PendingAiRequest | null) {
+  if (request) {
+    localStorage.setItem(PENDING_AI_REQUEST_KEY, JSON.stringify(request));
+  } else {
+    localStorage.removeItem(PENDING_AI_REQUEST_KEY);
+  }
+}
 
 const suggestions = [
   "오늘 일정 알려줘.",
@@ -31,7 +54,10 @@ export function AiPage() {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [question, setQuestion] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [pendingRequest, setPendingRequest] = useState<PendingAiRequest | null>(
+    readPendingRequest,
+  );
+  const [startingRequest, setStartingRequest] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
   const [error, setError] = useState("");
   const [editingConversationId, setEditingConversationId] = useState<
@@ -39,6 +65,7 @@ export function AiPage() {
   >(null);
   const [conversationTitle, setConversationTitle] = useState("");
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const loading = startingRequest || pendingRequest !== null;
 
   const selectedConversation = conversations.find(
     (conversation) => conversation.conversationId === selectedId,
@@ -50,7 +77,13 @@ export function AiPage() {
       .then((items) => {
         if (!active) return;
         setConversations(items);
-        setSelectedId((current) => current ?? items[0]?.conversationId ?? null);
+        setSelectedId(
+          (current) =>
+            current ??
+            pendingRequest?.conversationId ??
+            items[0]?.conversationId ??
+            null,
+        );
       })
       .catch((cause) => active && setError(getErrorMessage(cause)))
       .finally(() => active && setPageLoading(false));
@@ -75,6 +108,55 @@ export function AiPage() {
       active = false;
     };
   }, [selectedId]);
+
+  useEffect(() => {
+    if (!pendingRequest) return;
+
+    let active = true;
+    let timer: number | undefined;
+
+    const poll = async () => {
+      try {
+        const job = await getAiRequest(pendingRequest.requestId);
+        if (!active) return;
+
+        if (job.status === "processing") {
+          timer = window.setTimeout(poll, 1500);
+          return;
+        }
+
+        const conversationItems = await getConversations();
+        if (!active) return;
+        let messageItems: ChatMessage[] | null = null;
+        if (selectedId === job.conversationId) {
+          messageItems = await getConversationMessages(job.conversationId);
+        }
+        if (!active) return;
+
+        setConversations(conversationItems);
+        if (messageItems) setMessages(messageItems);
+        setError("");
+        savePendingRequest(null);
+        setPendingRequest(null);
+      } catch (cause) {
+        if (!active) return;
+        if (cause instanceof ApiError && cause.status === 404) {
+          savePendingRequest(null);
+          setPendingRequest(null);
+          setError("진행 중이던 AI 요청 상태를 찾을 수 없습니다.");
+          return;
+        }
+        setError(getErrorMessage(cause));
+        timer = window.setTimeout(poll, 2500);
+      }
+    };
+
+    poll();
+    return () => {
+      active = false;
+      if (timer !== undefined) window.clearTimeout(timer);
+    };
+  }, [pendingRequest?.requestId, pendingRequest?.conversationId, selectedId]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
@@ -180,16 +262,21 @@ export function AiPage() {
     setMessages((current) => [...current, optimisticMessage]);
     setQuestion("");
     setError("");
-    setLoading(true);
-
+    setStartingRequest(true);
     try {
-      const response = await askLlm({ conversationId: selectedId, message });
-      setMessages((current) => [...current, response.message]);
-      await refreshConversations(response.conversationId);
+      const job = await startAiRequest({ conversationId: selectedId, message });
+      const pending = {
+        requestId: job.requestId,
+        conversationId: job.conversationId,
+      };
+      savePendingRequest(pending);
+      setPendingRequest(pending);
+      setSelectedId(job.conversationId);
+      await refreshConversations(job.conversationId);
     } catch (cause) {
       setError(getErrorMessage(cause));
     } finally {
-      setLoading(false);
+      setStartingRequest(false);
     }
   }
 
