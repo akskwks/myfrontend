@@ -25,19 +25,21 @@ const PENDING_AI_REQUEST_KEY = "myapp.ai.pending-request";
 
 type PendingAiRequest = Pick<AiChatJob, "requestId" | "conversationId">;
 
-function readPendingRequest(): PendingAiRequest | null {
+function readPendingRequests(): PendingAiRequest[] {
   try {
     const value = localStorage.getItem(PENDING_AI_REQUEST_KEY);
-    return value ? (JSON.parse(value) as PendingAiRequest) : null;
+    if (!value) return [];
+    const parsed = JSON.parse(value) as PendingAiRequest | PendingAiRequest[];
+    return Array.isArray(parsed) ? parsed : [parsed];
   } catch {
     localStorage.removeItem(PENDING_AI_REQUEST_KEY);
-    return null;
+    return [];
   }
 }
 
-function savePendingRequest(request: PendingAiRequest | null) {
-  if (request) {
-    localStorage.setItem(PENDING_AI_REQUEST_KEY, JSON.stringify(request));
+function savePendingRequests(requests: PendingAiRequest[]) {
+  if (requests.length) {
+    localStorage.setItem(PENDING_AI_REQUEST_KEY, JSON.stringify(requests));
   } else {
     localStorage.removeItem(PENDING_AI_REQUEST_KEY);
   }
@@ -54,8 +56,8 @@ export function AiPage() {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [question, setQuestion] = useState("");
-  const [pendingRequest, setPendingRequest] = useState<PendingAiRequest | null>(
-    readPendingRequest,
+  const [pendingRequests, setPendingRequests] = useState<PendingAiRequest[]>(
+    readPendingRequests,
   );
   const [startingRequest, setStartingRequest] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
@@ -65,7 +67,10 @@ export function AiPage() {
   >(null);
   const [conversationTitle, setConversationTitle] = useState("");
   const chatEndRef = useRef<HTMLDivElement>(null);
-  const loading = startingRequest || pendingRequest !== null;
+  const selectedRequest = pendingRequests.find(
+    (request) => request.conversationId === selectedId,
+  );
+  const loading = startingRequest || selectedRequest !== undefined;
 
   const selectedConversation = conversations.find(
     (conversation) => conversation.conversationId === selectedId,
@@ -80,7 +85,7 @@ export function AiPage() {
         setSelectedId(
           (current) =>
             current ??
-            pendingRequest?.conversationId ??
+            pendingRequests[0]?.conversationId ??
             items[0]?.conversationId ??
             null,
         );
@@ -110,17 +115,38 @@ export function AiPage() {
   }, [selectedId]);
 
   useEffect(() => {
-    if (!pendingRequest) return;
+    if (pendingRequests.length === 0) return;
 
     let active = true;
     let timer: number | undefined;
+    const requests = pendingRequests;
 
     const poll = async () => {
       try {
-        const job = await getAiRequest(pendingRequest.requestId);
+        const results = await Promise.all(
+          requests.map(async (request) => {
+            try {
+              return { request, job: await getAiRequest(request.requestId) };
+            } catch (cause) {
+              return { request, cause };
+            }
+          }),
+        );
         if (!active) return;
 
-        if (job.status === "processing") {
+        const completed = results.filter(
+          (result) => result.job?.status === "completed",
+        );
+        const missing = results.filter(
+          (result) =>
+            result.cause instanceof ApiError && result.cause.status === 404,
+        );
+        const retryableFailure = results.find(
+          (result) => result.cause && !missing.includes(result),
+        );
+
+        if (completed.length === 0 && missing.length === 0) {
+          if (retryableFailure) setError(getErrorMessage(retryableFailure.cause));
           timer = window.setTimeout(poll, 1500);
           return;
         }
@@ -128,24 +154,33 @@ export function AiPage() {
         const conversationItems = await getConversations();
         if (!active) return;
         let messageItems: ChatMessage[] | null = null;
-        if (selectedId === job.conversationId) {
-          messageItems = await getConversationMessages(job.conversationId);
+        const selectedFinished = [...completed, ...missing].some(
+          (result) => result.request.conversationId === selectedId,
+        );
+        if (selectedId && selectedFinished) {
+          messageItems = await getConversationMessages(selectedId);
         }
         if (!active) return;
 
+        const finishedIds = new Set(
+          [...completed, ...missing].map((result) => result.request.requestId),
+        );
         setConversations(conversationItems);
         if (messageItems) setMessages(messageItems);
-        setError("");
-        savePendingRequest(null);
-        setPendingRequest(null);
+        setError(
+          missing.length
+            ? "일부 AI 요청 상태를 찾을 수 없어 대화 내역을 다시 불러왔습니다."
+            : "",
+        );
+        setPendingRequests((current) => {
+          const next = current.filter(
+            (request) => !finishedIds.has(request.requestId),
+          );
+          savePendingRequests(next);
+          return next;
+        });
       } catch (cause) {
         if (!active) return;
-        if (cause instanceof ApiError && cause.status === 404) {
-          savePendingRequest(null);
-          setPendingRequest(null);
-          setError("진행 중이던 AI 요청 상태를 찾을 수 없습니다.");
-          return;
-        }
         setError(getErrorMessage(cause));
         timer = window.setTimeout(poll, 2500);
       }
@@ -156,7 +191,7 @@ export function AiPage() {
       active = false;
       if (timer !== undefined) window.clearTimeout(timer);
     };
-  }, [pendingRequest?.requestId, pendingRequest?.conversationId, selectedId]);
+  }, [pendingRequests, selectedId]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
@@ -169,7 +204,7 @@ export function AiPage() {
   }
 
   async function startConversation() {
-    if (loading) return;
+    if (startingRequest) return;
     setError("");
     try {
       const conversation = await createConversation();
@@ -269,10 +304,18 @@ export function AiPage() {
         requestId: job.requestId,
         conversationId: job.conversationId,
       };
-      savePendingRequest(pending);
-      setPendingRequest(pending);
-      setSelectedId(job.conversationId);
-      await refreshConversations(job.conversationId);
+      setPendingRequests((current) => {
+        const next = [
+          ...current.filter(
+            (request) => request.conversationId !== pending.conversationId,
+          ),
+          pending,
+        ];
+        savePendingRequests(next);
+        return next;
+      });
+      if (selectedId === null) setSelectedId(job.conversationId);
+      await refreshConversations();
     } catch (cause) {
       setError(getErrorMessage(cause));
     } finally {
@@ -357,8 +400,22 @@ export function AiPage() {
                     onClick={() => setSelectedId(conversation.conversationId)}
                   >
                     <strong>{conversation.title}</strong>
-                    <span>
-                      {formatConversationDate(conversation.updatedAt)}
+                    <span
+                      className={
+                        pendingRequests.some(
+                          (request) =>
+                            request.conversationId === conversation.conversationId,
+                        )
+                          ? "is-generating"
+                          : undefined
+                      }
+                    >
+                      {pendingRequests.some(
+                        (request) =>
+                          request.conversationId === conversation.conversationId,
+                      )
+                        ? "답변 생성 중"
+                        : `준비됨 · ${formatConversationDate(conversation.updatedAt)}`}
                     </span>
                   </button>
                 )}
