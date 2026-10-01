@@ -628,6 +628,16 @@ h3 {
   cursor: pointer;
 }
 
+.stack-form input[type="time"].date-picker-input {
+  cursor: text;
+}
+
+.calendar-time-error {
+  margin: -2px 0 0;
+  color: var(--danger);
+  font-size: 0.84rem;
+}
+
 .react-datepicker-popper {
   z-index: 40;
 }

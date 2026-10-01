@@ -56,25 +56,22 @@ function toDateValue(value: string) {
   return new Date(year, month - 1, day);
 }
 
-function toTimeValue(dateText: string, timeText: string) {
-  const date = toDateValue(dateText);
-  const [hour, minute] = timeText.split(":").map(Number);
-  date.setHours(hour, minute, 0, 0);
-  return date;
+function normalizeTime(value: string) {
+  return value.slice(0, 5);
 }
 
-function toTimeText(date: Date) {
-  return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+function minutesOfDay(value: string) {
+  const [hour, minute] = normalizeTime(value).split(":").map(Number);
+  return hour * 60 + minute;
 }
 
-function minutesOfDay(date: Date) {
-  return date.getHours() * 60 + date.getMinutes();
+function toTimeText(minutes: number) {
+  return `${String(Math.floor(minutes / 60)).padStart(2, "0")}:${String(minutes % 60).padStart(2, "0")}`;
 }
 
-function timeAt(dateText: string, minutes: number) {
-  const date = toDateValue(dateText);
-  date.setHours(Math.floor(minutes / 60), minutes % 60, 0, 0);
-  return date;
+function minimumEndTime(startTime: string) {
+  if (!startTime) return "00:01";
+  return toTimeText(Math.min(minutesOfDay(startTime) + 1, 23 * 60 + 59));
 }
 
 function getMonthDays(monthDate: Date) {
@@ -98,6 +95,7 @@ export function CalendarPage() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [payload, setPayload] = useState<CalendarEventPayload>(emptyPayload());
   const [message, setMessage] = useState("일정을 불러오고 있습니다.");
+  const [timeError, setTimeError] = useState("");
 
   const monthDays = useMemo(() => getMonthDays(monthDate), [monthDate]);
   const monthLabel = new Intl.DateTimeFormat("ko-KR", {
@@ -129,6 +127,7 @@ export function CalendarPage() {
     setSelectedDate(date);
     setEditingId(null);
     setPayload(emptyPayload(date));
+    setTimeError("");
   }
 
   function changeEventDate(date: Date | null) {
@@ -139,27 +138,30 @@ export function CalendarPage() {
     setMonthDate(new Date(date.getFullYear(), date.getMonth(), 1));
   }
 
-  function changeStartTime(date: Date | null) {
-    if (!date) return;
-    const startMinutes = minutesOfDay(date);
-    const currentEndMinutes = minutesOfDay(
-      toTimeValue(payload.eventDate, payload.endTime),
-    );
+  function changeStartTime(startTime: string) {
+    setTimeError("");
+    if (!startTime) {
+      setPayload((current) => ({ ...current, startTime }));
+      return;
+    }
+
+    const startMinutes = minutesOfDay(startTime);
+    const currentEndMinutes = minutesOfDay(payload.endTime);
     const endMinutes =
       currentEndMinutes > startMinutes
         ? currentEndMinutes
-        : Math.min(startMinutes + 60, 23 * 60 + 45);
+        : Math.min(startMinutes + 60, 23 * 60 + 59);
 
     setPayload((current) => ({
       ...current,
-      startTime: toTimeText(date),
-      endTime: toTimeText(timeAt(current.eventDate, endMinutes)),
+      startTime,
+      endTime: toTimeText(endMinutes),
     }));
   }
 
-  function changeEndTime(date: Date | null) {
-    if (!date) return;
-    setPayload((current) => ({ ...current, endTime: toTimeText(date) }));
+  function changeEndTime(endTime: string) {
+    setTimeError("");
+    setPayload((current) => ({ ...current, endTime }));
   }
 
   function startEdit(event: CalendarEvent) {
@@ -168,8 +170,8 @@ export function CalendarPage() {
     setPayload({
       eventTitle: event.eventTitle,
       eventDate: event.eventDate,
-      startTime: event.startTime,
-      endTime: event.endTime,
+      startTime: normalizeTime(event.startTime),
+      endTime: normalizeTime(event.endTime),
       eventCatg: event.eventCatg,
       color: event.color,
       event_dsc: event.event_dsc,
@@ -178,10 +180,16 @@ export function CalendarPage() {
 
   async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (minutesOfDay(payload.endTime) <= minutesOfDay(payload.startTime)) {
+      setTimeError("종료 시간은 시작 시간보다 늦어야 합니다.");
+      return;
+    }
+
     if (editingId) await updateCalendarEvent(editingId, payload);
     else await createCalendarEvent(payload);
     setEditingId(null);
     setPayload(emptyPayload(payload.eventDate));
+    setTimeError("");
     await loadEvents();
   }
 
@@ -286,6 +294,7 @@ export function CalendarPage() {
                 onClick={() => {
                   setEditingId(null);
                   setPayload(emptyPayload(selectedDate));
+                  setTimeError("");
                 }}
               >
                 새 일정
@@ -392,21 +401,14 @@ export function CalendarPage() {
                 시작 시간
                 <div className="date-picker-control">
                   <Clock3 size={17} aria-hidden="true" />
-                  <DatePicker
+                  <input
+                    type="time"
                     required
-                    selected={toTimeValue(payload.eventDate, payload.startTime)}
-                    onChange={changeStartTime}
-                    locale="ko"
-                    showTimeSelect
-                    showTimeSelectOnly
-                    timeIntervals={15}
-                    timeCaption="시작"
-                    dateFormat="HH:mm"
-                    filterTime={(time) => minutesOfDay(time) <= 23 * 60 + 30}
-                    popperPlacement="top-end"
-                    showPopperArrow={false}
+                    step={60}
+                    max="23:58"
+                    value={payload.startTime}
+                    onChange={(event) => changeStartTime(event.target.value)}
                     className="date-picker-input"
-                    calendarClassName="myapp-time-picker"
                     aria-label="시작 시간"
                   />
                 </div>
@@ -415,31 +417,25 @@ export function CalendarPage() {
                 종료 시간
                 <div className="date-picker-control">
                   <Clock3 size={17} aria-hidden="true" />
-                  <DatePicker
+                  <input
+                    type="time"
                     required
-                    selected={toTimeValue(payload.eventDate, payload.endTime)}
-                    onChange={changeEndTime}
-                    locale="ko"
-                    showTimeSelect
-                    showTimeSelectOnly
-                    timeIntervals={15}
-                    timeCaption="종료"
-                    dateFormat="HH:mm"
-                    filterTime={(time) =>
-                      minutesOfDay(time) >
-                      minutesOfDay(
-                        toTimeValue(payload.eventDate, payload.startTime),
-                      )
-                    }
-                    popperPlacement="top-end"
-                    showPopperArrow={false}
+                    step={60}
+                    min={minimumEndTime(payload.startTime)}
+                    max="23:59"
+                    value={payload.endTime}
+                    onChange={(event) => changeEndTime(event.target.value)}
                     className="date-picker-input"
-                    calendarClassName="myapp-time-picker"
                     aria-label="종료 시간"
                   />
                 </div>
               </label>
             </div>
+            {timeError && (
+              <p className="calendar-time-error" role="alert">
+                {timeError}
+              </p>
+            )}
             <div className="color-row">
               {categoryColors.map((color) => (
                 <button
