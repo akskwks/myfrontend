@@ -89,6 +89,9 @@ function getMonthDays(monthDate: Date) {
 }
 
 export function CalendarPage() {
+  const linkedEventId = Number(
+    new URLSearchParams(location.hash.split("?")[1] ?? "").get("eventId"),
+  );
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [monthDate, setMonthDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(todayText);
@@ -106,15 +109,29 @@ export function CalendarPage() {
     (event) => event.eventDate === selectedDate,
   );
 
-  async function loadEvents() {
+  async function loadEvents(openEventId?: number) {
     const items = await getCalendarEvents();
     setEvents(items);
     setMessage(`${items.length}개의 일정을 관리 중입니다.`);
+    const linkedEvent = items.find((item) => item.eventId === openEventId);
+    if (linkedEvent) {
+      setSelectedDate(linkedEvent.eventDate);
+      setMonthDate(toDateValue(linkedEvent.eventDate));
+      setPayload(emptyPayload(linkedEvent.eventDate));
+    }
   }
 
   useEffect(() => {
-    loadEvents();
+    loadEvents(linkedEventId);
   }, []);
+
+  useEffect(() => {
+    if (!events.some((item) => item.eventId === linkedEventId && item.eventDate === selectedDate)) return;
+    const frame = requestAnimationFrame(() => {
+      document.getElementById(`calendar-event-${linkedEventId}`)?.scrollIntoView({ block: "nearest" });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [events, linkedEventId, selectedDate]);
 
   function changeMonth(amount: number) {
     setMonthDate(
@@ -305,7 +322,11 @@ export function CalendarPage() {
           <div className="event-list">
             {selectedEvents.length ? (
               selectedEvents.map((event) => (
-                <article className="event-card" key={event.eventId}>
+                <article
+                  className={`event-card ${event.eventId === linkedEventId ? "is-linked" : ""}`}
+                  id={`calendar-event-${event.eventId}`}
+                  key={event.eventId}
+                >
                   <span style={{ background: event.color }} />
                   <div>
                     <strong>{event.eventTitle}</strong>

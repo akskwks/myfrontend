@@ -82,9 +82,16 @@ export function AiPage() {
       .then((items) => {
         if (!active) return;
         setConversations(items);
+        const requestedId = Number(
+          new URLSearchParams(location.hash.split("?")[1] ?? "").get("conversationId"),
+        );
+        const requestedConversation = items.find(
+          (item) => item.conversationId === requestedId,
+        );
         setSelectedId(
           (current) =>
             current ??
+            requestedConversation?.conversationId ??
             pendingRequests[0]?.conversationId ??
             items[0]?.conversationId ??
             null,
