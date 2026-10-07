@@ -196,7 +196,7 @@ export function WorkProjectList() {
             <tr>
               <th scope="col">분류</th>
               <th scope="col">프로젝트명</th>
-              <th scope="col">진행사항</th>
+              <th scope="col">진행 상태</th>
               <th scope="col">시작일</th>
               <th scope="col">종료일</th>
               <th scope="col">관리</th>
