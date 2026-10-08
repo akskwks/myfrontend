@@ -21,6 +21,12 @@ export function getAiRequest(requestId: string) {
   return request<AiChatJob>(`${AI_CHAT_API_URL}/${requestId}`);
 }
 
+export function cancelAiRequest(requestId: string) {
+  return request<AiChatJob>(`${AI_CHAT_API_URL}/${requestId}`, {
+    method: "DELETE",
+  });
+}
+
 export function getConversations() {
   return request<AiConversation[]>(AI_CONVERSATION_API_URL);
 }

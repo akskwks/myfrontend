@@ -14,7 +14,7 @@ export type AiChatJob = {
 export type ChatMessage = {
   messageId: number;
   conversationId: number;
-  role: "user" | "assistant";
+  role: "user" | "assistant" | "exception";
   content: string;
   createdAt: string;
 };

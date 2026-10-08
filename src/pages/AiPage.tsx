@@ -7,8 +7,9 @@ import {
 } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { Check, Pencil, X } from "lucide-react";
+import { Check, Pencil, Square, X } from "lucide-react";
 import {
+  cancelAiRequest,
   createConversation,
   deleteConversation,
   getAiRequest,
@@ -60,6 +61,8 @@ export function AiPage() {
     readPendingRequests,
   );
   const [startingRequest, setStartingRequest] = useState(false);
+  const [stoppingRequestId, setStoppingRequestId] = useState<string | null>(null);
+  const [stoppingInitialRequest, setStoppingInitialRequest] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
   const [error, setError] = useState("");
   const [editingConversationId, setEditingConversationId] = useState<
@@ -67,10 +70,14 @@ export function AiPage() {
   >(null);
   const [conversationTitle, setConversationTitle] = useState("");
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const stopWhenStartedRef = useRef(false);
+  const selectedIdRef = useRef(selectedId);
+  selectedIdRef.current = selectedId;
   const selectedRequest = pendingRequests.find(
     (request) => request.conversationId === selectedId,
   );
   const loading = startingRequest || selectedRequest !== undefined;
+  const stopping = stoppingInitialRequest || stoppingRequestId === selectedRequest?.requestId;
 
   const selectedConversation = conversations.find(
     (conversation) => conversation.conversationId === selectedId,
@@ -322,11 +329,67 @@ export function AiPage() {
         return next;
       });
       if (selectedId === null) setSelectedId(job.conversationId);
-      await refreshConversations();
+      if (stopWhenStartedRef.current) {
+        await cancelRequest(pending);
+      } else {
+        await refreshConversations();
+      }
     } catch (cause) {
       setError(getErrorMessage(cause));
     } finally {
+      stopWhenStartedRef.current = false;
+      setStoppingInitialRequest(false);
       setStartingRequest(false);
+    }
+  }
+
+  async function cancelRequest(request: PendingAiRequest) {
+    setStoppingRequestId(request.requestId);
+    setError("");
+    try {
+      const stoppedJob = await cancelAiRequest(request.requestId);
+      if (
+        stoppedJob.message &&
+        (selectedIdRef.current === request.conversationId ||
+          selectedIdRef.current === null)
+      ) {
+        const stoppedMessage = stoppedJob.message;
+        setMessages((current) =>
+          current.some((message) => message.messageId === stoppedMessage.messageId)
+            ? current
+            : [...current, stoppedMessage],
+        );
+      }
+      setPendingRequests((current) => {
+        const next = current.filter((item) => item.requestId !== request.requestId);
+        savePendingRequests(next);
+        return next;
+      });
+      const [items, conversationItems] = await Promise.all([
+        getConversationMessages(request.conversationId),
+        getConversations(),
+      ]);
+      if (
+        selectedIdRef.current === request.conversationId ||
+        selectedIdRef.current === null
+      ) {
+        setMessages(items);
+      }
+      setConversations(conversationItems);
+    } catch (cause) {
+      setError(getErrorMessage(cause));
+    } finally {
+      setStoppingRequestId(null);
+    }
+  }
+
+  function stopResponse() {
+    if (stopping) return;
+    if (selectedRequest) {
+      void cancelRequest(selectedRequest);
+    } else if (startingRequest) {
+      stopWhenStartedRef.current = true;
+      setStoppingInitialRequest(true);
     }
   }
 
@@ -542,13 +605,27 @@ export function AiPage() {
                 disabled={loading}
                 required
               />
-              <button
-                className="primary-button"
-                type="submit"
-                disabled={loading || !question.trim()}
-              >
-                {loading ? "요청 중" : "보내기"}
-              </button>
+              {loading ? (
+                <button
+                  className="primary-button chat-stop-button"
+                  type="button"
+                  onClick={stopResponse}
+                  disabled={stopping}
+                  title="답변 생성 중지"
+                  aria-label="답변 생성 중지"
+                >
+                  <Square size={14} fill="currentColor" aria-hidden="true" />
+                  {stopping ? "중지 중" : "중지"}
+                </button>
+              ) : (
+                <button
+                  className="primary-button"
+                  type="submit"
+                  disabled={!question.trim()}
+                >
+                  보내기
+                </button>
+              )}
             </div>
             <div className="chat-form-meta">
               <span>{question.length.toLocaleString()} / 4,000</span>

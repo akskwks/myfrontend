@@ -2131,6 +2131,17 @@ h3 {
   background: #f8faf9;
 }
 
+.chat-message.exception {
+  align-self: flex-start;
+  border-color: #efb9b9;
+  background: #fff0f0;
+  color: #8e3030;
+}
+
+.chat-message.exception > header strong {
+  color: #a12d2d;
+}
+
 .chat-message > header {
   display: flex;
   align-items: center;
@@ -2293,6 +2304,19 @@ h3 {
 
 .chat-input-row textarea {
   min-height: 92px;
+}
+
+.chat-stop-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  background: #a63d3d;
+  border: 1px solid #a63d3d;
+}
+
+.chat-stop-button:hover:not(:disabled) {
+  background: #8c3030;
 }
 
 .chat-form-meta {
