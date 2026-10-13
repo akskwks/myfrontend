@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useLayoutEffect, useRef, type MouseEvent } from "react";
 import {
   ArrowRight,
   Bot,
@@ -7,16 +7,8 @@ import {
   NotebookPen,
   type LucideIcon,
 } from "lucide-react";
-import { getCalendarEvents } from "../api/calendarApi";
-import { getConversations } from "../api/aichatApi";
-import { getMemos } from "../api/memoApi";
-import { getWorkProjects } from "../api/projectApi";
 import heroImg from "../assets/hero.png";
 import { AppShell } from "../components/AppShell";
-import type { CalendarEvent } from "../types/calendar";
-import type { AiConversation } from "../types/aichat";
-import type { Memo, MemoSort } from "../types/memo";
-import type { ProjectStatus, WorkProject } from "../types/projectList";
 
 type FeatureKind = "calendar" | "project" | "memo" | "ai";
 
@@ -24,285 +16,62 @@ const features: {
   kind: FeatureKind;
   icon: LucideIcon;
   name: string;
-  headline: string;
   description: string;
-  highlights: string[];
   href: string;
 }[] = [
   {
     kind: "calendar",
     icon: CalendarDays,
     name: "캘린더",
-    headline: "일정을 한눈에",
-    description:
-      "예정된 일정을 날짜와 시간에 맞춰 정리하고, 중요한 하루를 놓치지 마세요.",
-    highlights: ["월별 일정 조회", "시간별 일정 등록", "날짜별 상세 확인"],
+    description: "일정을 날짜별로 확인하고 관리하세요.",
     href: "#/calendar",
   },
   {
     kind: "project",
     icon: BriefcaseBusiness,
     name: "프로젝트",
-    headline: "진행 중인 업무를 분명하게",
-    description:
-      "프로젝트별 업무 기록을 모아 진행 상태와 다음 작업을 살펴보세요.",
-    highlights: ["프로젝트별 업무", "진행 상태 관리", "업무 기록과 첨부파일"],
+    description: "프로젝트와 업무 진행 상황을 한눈에 확인하세요.",
     href: "#/works",
   },
   {
     kind: "memo",
     icon: NotebookPen,
     name: "메모",
-    headline: "생각을 원하는 형태로",
-    description:
-      "아이디어부터 코드와 할 일까지, 하나의 문서에서 자유롭게 작성하세요.",
-    highlights: ["서식 있는 편집", "코드와 체크리스트", "분류 및 검색"],
+    description: "생각과 할 일을 자유롭게 기록하세요.",
     href: "#/memos",
   },
   {
     kind: "ai",
     icon: Bot,
     name: "AI 챗봇",
-    headline: "기록을 대화로 이어가세요",
-    description:
-      "질문을 주고받으며 일정과 프로젝트, 메모와 업무 기록을 활용하세요.",
-    highlights: ["대화 내역 관리", "자연어로 기록 조회", "답변 이어가기"],
+    description: "질문하고 내 기록을 바탕으로 답변받으세요.",
     href: "#/ai",
   },
 ];
 
-type PreviewProps = {
-  kind: FeatureKind;
-  events: CalendarEvent[];
-  projects: WorkProject[];
-  memos: Memo[];
-  conversations: AiConversation[];
-  loading: boolean;
-  error: string;
-};
+function shakeFeatureIcon(event: MouseEvent<HTMLAnchorElement>) {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-const memoLabels: Record<MemoSort, string> = {
-  general: "일반",
-  code: "코드",
-  todo: "TODO",
-  etc: "기타",
-};
+  const icon = event.currentTarget.querySelector<HTMLElement>(".home-feature-icon");
+  if (!icon) return;
 
-function FeaturePreview({
-  kind,
-  events,
-  projects,
-  memos,
-  conversations,
-  loading,
-  error,
-}: PreviewProps) {
-  const status = loading ? "불러오는 중입니다." : error;
-
-  if (kind === "calendar") {
-    return (
-      <div className="home-feature-preview">
-        <div className="home-preview-heading">
-          <span>등록된 일정</span>
-          <CalendarDays size={17} aria-hidden="true" />
-        </div>
-        {status ? (
-          <p className="home-preview-empty">{status}</p>
-        ) : events.length ? (
-          events.map((event) => (
-            <a
-              className="home-preview-row"
-              href={`#/calendar?eventId=${event.eventId}`}
-              key={event.eventId}
-            >
-              <span className="home-preview-primary">{event.eventTitle}</span>
-              <time dateTime={`${event.eventDate}T${event.startTime}`}>
-                {event.eventDate} {event.startTime.slice(0, 5)}
-              </time>
-            </a>
-          ))
-        ) : (
-          <p className="home-preview-empty">등록된 일정이 없습니다.</p>
-        )}
-      </div>
-    );
-  }
-
-  if (kind === "project") {
-    return (
-      <div className="home-feature-preview">
-        <div className="home-preview-heading">
-          <span>등록된 프로젝트</span>
-          <BriefcaseBusiness size={17} aria-hidden="true" />
-        </div>
-        {status ? (
-          <p className="home-preview-empty">{status}</p>
-        ) : projects.length ? (
-          projects.map((project) => (
-            <a
-              className="home-preview-row"
-              href={`#/works/${project.projectId}`}
-              key={project.projectId}
-            >
-              <span className="home-preview-primary">
-                {project.projectName}
-              </span>
-              <small>{projectStatusLabels[project.projectStatus]}</small>
-            </a>
-          ))
-        ) : (
-          <p className="home-preview-empty">등록된 프로젝트가 없습니다.</p>
-        )}
-      </div>
-    );
-  }
-
-  if (kind === "memo") {
-    return (
-      <div className="home-feature-preview">
-        <div className="home-preview-heading">
-          <span>최근 메모</span>
-          <NotebookPen size={17} aria-hidden="true" />
-        </div>
-        {status ? (
-          <p className="home-preview-empty">{status}</p>
-        ) : memos.length ? (
-          memos.map((memo) => (
-            <a
-              className="home-preview-row"
-              href={`#/memos/${memo.memoId}`}
-              key={memo.memoId}
-            >
-              <span className="home-preview-primary">{memo.memoTitle}</span>
-              <small>{memoLabels[memo.memoSort]}</small>
-            </a>
-          ))
-        ) : (
-          <p className="home-preview-empty">등록된 메모가 없습니다.</p>
-        )}
-      </div>
-    );
-  }
-
-  return (
-    <div className="home-feature-preview">
-      <div className="home-preview-heading">
-        <span>최근 대화</span>
-        <Bot size={17} aria-hidden="true" />
-      </div>
-      {status ? (
-        <p className="home-preview-empty">{status}</p>
-      ) : conversations.length ? (
-        conversations.map((conversation) => (
-          <a
-            className="home-preview-row"
-            href={`#/ai?conversationId=${conversation.conversationId}`}
-            key={conversation.conversationId}
-          >
-            <span className="home-preview-primary">{conversation.title}</span>
-            <small>{conversation.updatedAt.slice(0, 10)}</small>
-          </a>
-        ))
-      ) : (
-        <p className="home-preview-empty">저장된 대화가 없습니다.</p>
-      )}
-    </div>
+  icon.getAnimations().forEach((animation) => animation.cancel());
+  icon.animate(
+    [
+      { transform: "rotate(0deg)", offset: 0 },
+      { transform: "rotate(-10deg)", offset: 0.16 },
+      { transform: "rotate(10deg)", offset: 0.36 },
+      { transform: "rotate(-7deg)", offset: 0.56 },
+      { transform: "rotate(5deg)", offset: 0.74 },
+      { transform: "rotate(-2deg)", offset: 0.88 },
+      { transform: "rotate(0deg)", offset: 1 },
+    ],
+    { duration: 650, easing: "ease-in-out" },
   );
-}
-
-const projectStatusLabels: Record<ProjectStatus, string> = {
-  planned: "예정",
-  in_progress: "진행중",
-  completed: "종료",
-  on_hold: "보류",
-};
-
-function toDateText(date: Date) {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
 }
 
 export function MainPage() {
   const featureListRef = useRef<HTMLElement>(null);
-  const [events, setEvents] = useState<CalendarEvent[]>([]);
-  const [projects, setProjects] = useState<WorkProject[]>([]);
-  const [memos, setMemos] = useState<Memo[]>([]);
-  const [conversations, setConversations] = useState<AiConversation[]>([]);
-  const [isLoadingEvents, setIsLoadingEvents] = useState(true);
-  const [isLoadingProjects, setIsLoadingProjects] = useState(true);
-  const [isLoadingMemos, setIsLoadingMemos] = useState(true);
-  const [isLoadingConversations, setIsLoadingConversations] = useState(true);
-  const [eventError, setEventError] = useState("");
-  const [projectError, setProjectError] = useState("");
-  const [memoError, setMemoError] = useState("");
-  const [conversationError, setConversationError] = useState("");
-  const today = toDateText(new Date());
-  const previewEvents = useMemo(() => {
-    const sorted = [...events].sort((a, b) =>
-      `${a.eventDate} ${a.startTime}`.localeCompare(
-        `${b.eventDate} ${b.startTime}`,
-      ),
-    );
-    const upcoming = sorted.filter((event) => event.eventDate >= today);
-    return (upcoming.length ? upcoming : sorted.reverse()).slice(0, 3);
-  }, [events, today]);
-  const previewProjects = useMemo(
-    () =>
-      [...projects]
-        .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
-        .slice(0, 3),
-    [projects],
-  );
-  const previewMemos = useMemo(
-    () =>
-      [...memos]
-        .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
-        .slice(0, 3),
-    [memos],
-  );
-  const previewConversations = useMemo(
-    () =>
-      [...conversations]
-        .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
-        .slice(0, 3),
-    [conversations],
-  );
-
-  useEffect(() => {
-    getCalendarEvents()
-      .then(setEvents)
-      .catch(() => {
-        setEvents([]);
-        setEventError("일정을 불러오지 못했습니다.");
-      })
-      .finally(() => setIsLoadingEvents(false));
-  }, []);
-
-  useEffect(() => {
-    getMemos()
-      .then(setMemos)
-      .catch(() => setMemoError("메모를 불러오지 못했습니다."))
-      .finally(() => setIsLoadingMemos(false));
-  }, []);
-
-  useEffect(() => {
-    getConversations()
-      .then(setConversations)
-      .catch(() => setConversationError("대화 내역을 불러오지 못했습니다."))
-      .finally(() => setIsLoadingConversations(false));
-  }, []);
-
-  useEffect(() => {
-    getWorkProjects()
-      .then(setProjects)
-      .catch(() => {
-        setProjects([]);
-        setProjectError("프로젝트 목록을 불러오지 못했습니다.");
-      })
-      .finally(() => setIsLoadingProjects(false));
-  }, []);
 
   useLayoutEffect(() => {
     const sections =
@@ -361,9 +130,6 @@ export function MainPage() {
               AI 챗봇 시작
               <ArrowRight size={17} aria-hidden="true" />
             </a>
-            <a className="home-secondary-action" href="#/calendar">
-              캘린더 열기
-            </a>
           </div>
         </div>
 
@@ -380,63 +146,39 @@ export function MainPage() {
         aria-label="MyApp 주요 메뉴"
         ref={featureListRef}
       >
-        {features.map(
-          (
-            { kind, icon: Icon, name, headline, description, highlights, href },
-            index,
-          ) => (
-            <section
-              className={`home-feature home-feature--${kind}`}
-              key={kind}
-              aria-labelledby={`feature-${kind}`}
+        {features.map(({ kind, icon: Icon, name, description, href }) => (
+          <article
+            className={`home-feature home-feature--${kind}`}
+            key={kind}
+            aria-labelledby={`feature-${kind}`}
+          >
+            <a
+              className="home-feature-main"
+              href={href}
+              aria-label={`${name}: ${description}`}
+              onMouseEnter={shakeFeatureIcon}
+              onMouseLeave={shakeFeatureIcon}
             >
-              <div className="home-feature-tab">
-                <span className="home-feature-icon">
-                  <Icon size={21} strokeWidth={1.9} aria-hidden="true" />
+              <span className="home-feature-flip">
+                <span className="home-feature-face home-feature-front">
+                  <h2 className="home-feature-title" id={`feature-${kind}`}>
+                    {name}
+                  </h2>
+                  <span className="home-feature-icon">
+                    <Icon size={70} strokeWidth={1.7} aria-hidden="true" />
+                  </span>
                 </span>
-                <h2 id={`feature-${kind}`}>{name}</h2>
-              </div>
-              <div className="home-feature-content">
-                <div className="home-feature-body">
-                  <h3 className="home-feature-headline">{headline}</h3>
-                  <p className="home-feature-description">{description}</p>
-                  <ul className="home-feature-highlights">
-                    {highlights.map((highlight) => (
-                      <li key={highlight}>{highlight}</li>
-                    ))}
-                  </ul>
-                  <a className="home-feature-link" href={href}>
-                    {name} 열기
-                    <ArrowRight size={18} aria-hidden="true" />
-                  </a>
-                </div>
-                <FeaturePreview
-                  kind={kind}
-                  events={previewEvents}
-                  projects={previewProjects}
-                  memos={previewMemos}
-                  conversations={previewConversations}
-                  loading={
-                    {
-                      calendar: isLoadingEvents,
-                      project: isLoadingProjects,
-                      memo: isLoadingMemos,
-                      ai: isLoadingConversations,
-                    }[kind]
-                  }
-                  error={
-                    {
-                      calendar: eventError,
-                      project: projectError,
-                      memo: memoError,
-                      ai: conversationError,
-                    }[kind]
-                  }
-                />
-              </div>
-            </section>
-          ),
-        )}
+                <span
+                  className="home-feature-face home-feature-back"
+                  aria-hidden="true"
+                >
+                  <span className="home-feature-title">{name}</span>
+                  <span>{description}</span>
+                </span>
+              </span>
+            </a>
+          </article>
+        ))}
       </section>
 
       {/* <section
