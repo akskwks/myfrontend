@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { deleteMemo, getMemo, getMemos, updateMemo } from "../api/memoApi";
 import { AppShell } from "../components/AppShell";
+import { useAppDialog } from "../components/AppDialog";
 import { TiptapEditor } from "../components/TiptapEditor";
 import type { Memo, MemoSort } from "../types/memo";
 import { MemoCreate, memoSorts, templateLabel } from "./MemoCreate";
@@ -202,6 +203,7 @@ function MemoDetailView({
   memoId: number;
   startEditing?: boolean;
 }) {
+  const dialog = useAppDialog();
   const [memo, setMemo] = useState<Memo | null>(null);
   const [draft, setDraft] = useState<
     Pick<Memo, "memoTitle" | "memoCnnt" | "memoSort">
@@ -286,7 +288,14 @@ function MemoDetailView({
   }
 
   async function remove() {
-    if (!window.confirm("이 메모를 삭제할까요?")) return;
+    if (
+      !(await dialog.confirm({
+        title: "메모 삭제",
+        message: "이 메모를 삭제할까요?",
+        confirmLabel: "삭제",
+        destructive: true,
+      }))
+    ) return;
     await deleteMemo(memoId);
     goToMemo();
   }

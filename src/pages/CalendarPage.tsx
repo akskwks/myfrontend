@@ -10,6 +10,7 @@ import {
   updateCalendarEvent,
 } from "../api/calendarApi";
 import { AppShell } from "../components/AppShell";
+import { useAppDialog } from "../components/AppDialog";
 import type { CalendarEvent, CalendarEventPayload } from "../types/calendar";
 
 registerLocale("ko", ko);
@@ -89,6 +90,7 @@ function getMonthDays(monthDate: Date) {
 }
 
 export function CalendarPage() {
+  const dialog = useAppDialog();
   const linkedEventId = Number(
     new URLSearchParams(location.hash.split("?")[1] ?? "").get("eventId"),
   );
@@ -211,7 +213,14 @@ export function CalendarPage() {
   }
 
   async function remove(eventId: number) {
-    if (!window.confirm("이 일정을 삭제할까요?")) return;
+    if (
+      !(await dialog.confirm({
+        title: "일정 삭제",
+        message: "이 일정을 삭제할까요?",
+        confirmLabel: "삭제",
+        destructive: true,
+      }))
+    ) return;
     await deleteCalendarEvent(eventId);
     if (editingId === eventId) {
       setEditingId(null);

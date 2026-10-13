@@ -20,6 +20,7 @@ import {
 } from "../api/aichatApi";
 import { ApiError } from "../api/http";
 import { AppShell } from "../components/AppShell";
+import { useAppDialog } from "../components/AppDialog";
 import type { AiConversation, AiChatJob, ChatMessage } from "../types/aichat";
 
 const PENDING_AI_REQUEST_KEY = "myapp.ai.pending-request";
@@ -53,6 +54,7 @@ const suggestions = [
 ];
 
 export function AiPage() {
+  const dialog = useAppDialog();
   const [conversations, setConversations] = useState<AiConversation[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -232,7 +234,14 @@ export function AiPage() {
   }
 
   async function removeConversation(conversationId: number) {
-    if (!window.confirm("이 대화와 메시지를 모두 삭제할까요?")) return;
+    if (
+      !(await dialog.confirm({
+        title: "대화 삭제",
+        message: "이 대화와 메시지를 모두 삭제할까요?",
+        confirmLabel: "삭제",
+        destructive: true,
+      }))
+    ) return;
     try {
       await deleteConversation(conversationId);
       const remaining = conversations.filter(

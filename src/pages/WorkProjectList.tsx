@@ -15,6 +15,7 @@ import {
   updateWorkProject,
 } from "../api/projectApi";
 import { ApiError } from "../api/http";
+import { useAppDialog } from "../components/AppDialog";
 import type {
   ProjectStatus,
   WorkEnvironment,
@@ -72,6 +73,7 @@ function goToProject(projectId: number) {
 }
 
 export function WorkProjectList() {
+  const dialog = useAppDialog();
   const [projects, setProjects] = useState<WorkProject[]>([]);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [draft, setDraft] = useState<WorkProjectPayload>(emptyProject);
@@ -152,8 +154,14 @@ export function WorkProjectList() {
 
   async function removeProject(project: WorkProject, event: MouseEvent) {
     event.stopPropagation();
-    if (!window.confirm(`'${project.projectName}' 프로젝트를 삭제할까요?`))
-      return;
+    if (
+      !(await dialog.confirm({
+        title: "프로젝트 삭제",
+        message: `'${project.projectName}' 프로젝트를 삭제할까요?`,
+        confirmLabel: "삭제",
+        destructive: true,
+      }))
+    ) return;
 
     setError("");
     try {

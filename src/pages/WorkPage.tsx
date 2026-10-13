@@ -12,6 +12,7 @@ import {
 import { ApiError } from "../api/http";
 import { getWorkProject } from "../api/projectApi";
 import { AppShell } from "../components/AppShell";
+import { useAppDialog } from "../components/AppDialog";
 import { TiptapEditor } from "../components/TiptapEditor";
 import { WorkAttachments } from "../components/WorkAttachments";
 import type { Work, WorkFile, WorkPayload, WorkStatus } from "../types/workList";
@@ -304,6 +305,7 @@ function WorkDetailView({
   project: WorkProject;
   workId: number;
 }) {
+  const dialog = useAppDialog();
   const [work, setWork] = useState<Work | null>(null);
   const [draft, setDraft] = useState<WorkPayload | null>(null);
   const [editing, setEditing] = useState(false);
@@ -392,7 +394,14 @@ function WorkDetailView({
   }
 
   async function remove() {
-    if (!window.confirm("이 업무 기록을 삭제할까요?")) return;
+    if (
+      !(await dialog.confirm({
+        title: "업무 삭제",
+        message: "이 업무 기록을 삭제할까요?",
+        confirmLabel: "삭제",
+        destructive: true,
+      }))
+    ) return;
     await deleteWork(workId);
     goToProject(project.projectId);
   }

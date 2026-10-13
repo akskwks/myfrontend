@@ -1860,6 +1860,70 @@ h3 {
   gap: 10px;
 }
 
+.app-dialog {
+  width: min(420px, calc(100vw - 32px));
+  max-width: none;
+  max-height: calc(100dvh - 32px);
+  margin: auto;
+  padding: 28px;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 24px 70px rgba(9, 26, 21, 0.2);
+}
+
+.app-dialog::backdrop {
+  background: rgba(11, 29, 24, 0.48);
+  backdrop-filter: blur(3px);
+}
+
+.app-dialog-icon {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  margin: 0 auto 18px;
+  border-radius: 8px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.app-dialog-icon.is-danger {
+  background: #fef0ee;
+  color: var(--danger);
+}
+
+.app-dialog h2 {
+  margin-bottom: 10px;
+  font-size: 1.2rem;
+  text-align: center;
+}
+
+.app-dialog p {
+  margin-bottom: 26px;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+  text-align: center;
+  white-space: pre-wrap;
+}
+
+.app-dialog-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.app-dialog-actions .primary-button.is-danger {
+  border-color: var(--danger);
+  background: var(--danger);
+}
+
+.app-dialog-actions .primary-button.is-danger:hover {
+  background: #921e17;
+}
+
 .danger-text {
   color: var(--danger);
 }

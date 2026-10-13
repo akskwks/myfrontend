@@ -1,6 +1,7 @@
 import { StrictMode, useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import "./style.css";
+import { AppDialogProvider } from "./components/AppDialog";
 import { AiPage } from "./pages/AiPage";
 import { CalendarPage } from "./pages/CalendarPage";
 import { MainPage } from "./pages/MainPage";
@@ -34,6 +35,8 @@ if (!root) throw new Error("App root was not found.");
 
 createRoot(root).render(
   <StrictMode>
-    <App />
+    <AppDialogProvider>
+      <App />
+    </AppDialogProvider>
   </StrictMode>,
 );
