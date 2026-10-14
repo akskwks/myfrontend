@@ -4,8 +4,11 @@ import {
   Home,
   MessageSquareText,
   NotebookPen,
-  Sparkles,
+  LogOut,
+  UserRound,
 } from "lucide-react";
+import { useState } from "react";
+import { useUser } from "../user/UserContext";
 
 export type AppSection = "main" | "calendar" | "memo" | "work" | "ai";
 
@@ -18,6 +21,22 @@ const menuItems = [
 ] as const;
 
 export function Sidebar({ active }: { active: AppSection }) {
+  const { user, signOut } = useUser();
+  const [logoutError, setLogoutError] = useState("");
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  async function handleLogout() {
+    setLoggingOut(true);
+    setLogoutError("");
+    try {
+      await signOut();
+    } catch (error) {
+      setLogoutError(error instanceof Error ? error.message : "로그아웃에 실패했습니다.");
+    } finally {
+      setLoggingOut(false);
+    }
+  }
+
   return (
     <aside className="app-sidebar">
       <a className="sidebar-brand" href="#/" aria-label="MyApp 홈">
@@ -43,13 +62,15 @@ export function Sidebar({ active }: { active: AppSection }) {
         ))}
       </nav>
 
-      <div className="sidebar-status">
-        <Sparkles size={17} aria-hidden="true" />
+      <div className="sidebar-account">
+        <UserRound size={18} aria-hidden="true" />
         <span>
-          <strong>Created By MJ</strong>
-          <small>© 2026 MyApp</small>
+          <strong>{user?.userName}</strong>
+          <small>{user?.role === "ADMIN" ? "관리자" : "사용자"}</small>
         </span>
+        <button type="button" onClick={handleLogout} disabled={loggingOut} title="로그아웃" aria-label="로그아웃"><LogOut size={18} /></button>
       </div>
+      {logoutError && <p className="sidebar-account-error" role="alert">{logoutError}</p>}
     </aside>
   );
 }
