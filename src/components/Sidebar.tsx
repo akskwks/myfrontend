@@ -6,11 +6,12 @@ import {
   NotebookPen,
   LogOut,
   UserRound,
+  ScrollText,
 } from "lucide-react";
 import { useState } from "react";
 import { useUser } from "../user/UserContext";
 
-export type AppSection = "main" | "calendar" | "memo" | "work" | "ai";
+export type AppSection = "main" | "calendar" | "memo" | "work" | "ai" | "logs";
 
 const menuItems = [
   { key: "main", label: "홈", href: "#/", icon: Home },
@@ -18,6 +19,7 @@ const menuItems = [
   { key: "work", label: "업무", href: "#/works", icon: BriefcaseBusiness },
   { key: "memo", label: "메모", href: "#/memos", icon: NotebookPen },
   { key: "ai", label: "AI 챗봇", href: "#/ai", icon: MessageSquareText },
+  { key: "logs", label: "시스템 로그", href: "#/logs", icon: ScrollText },
 ] as const;
 
 export function Sidebar({ active }: { active: AppSection }) {
@@ -48,7 +50,7 @@ export function Sidebar({ active }: { active: AppSection }) {
       </a>
 
       <nav className="sidebar-nav" aria-label="주요 메뉴">
-        {menuItems.map(({ key, label, href, icon: Icon }) => (
+        {menuItems.filter(({ key }) => key !== "logs" || user?.role === "ADMIN").map(({ key, label, href, icon: Icon }) => (
           <a
             className={active === key ? "is-current" : ""}
             href={href}

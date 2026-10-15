@@ -9,8 +9,11 @@ import { CalendarPage } from "./pages/CalendarPage";
 import { MainPage } from "./pages/MainPage";
 import { MemoPage } from "./pages/MemoPage";
 import { WorkPage } from "./pages/WorkPage";
+import { SystemLogPage } from "./pages/SystemLogPage";
+import { AppShell } from "./components/AppShell";
 
 function App() {
+  const { user } = useUser();
   const [hash, setHash] = useState(location.hash);
 
   useEffect(() => {
@@ -28,6 +31,13 @@ function App() {
   if (path === "/works" || path.startsWith("/works/")) return <WorkPage />;
   if (path === "/ai") {
     return <AiPage />;
+  }
+  if (path === "/logs") {
+    return user?.role === "ADMIN" ? <SystemLogPage /> : (
+      <AppShell active="main" className="system-log-page-content">
+        <div className="system-log-denied" role="alert">시스템 로그는 관리자만 조회할 수 있습니다.</div>
+      </AppShell>
+    );
   }
   return <MainPage />;
 }

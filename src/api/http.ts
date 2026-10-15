@@ -18,10 +18,12 @@ export const USER_REQUIRED_EVENT = "myapp:user-required";
 
 let csrfToken: string | null = null;
 let csrfRequest: Promise<string> | null = null;
+const inFlightGets = new Map<string, Promise<unknown>>();
 
 export function clearCsrfToken() {
   csrfToken = null;
   csrfRequest = null;
+  inFlightGets.clear();
 }
 
 async function getCsrfToken() {
@@ -43,7 +45,7 @@ async function getCsrfToken() {
   return csrfRequest;
 }
 
-export async function request<T>(url: string, options?: RequestInit): Promise<T> {
+async function performRequest<T>(url: string, options?: RequestInit): Promise<T> {
   const method = options?.method?.toUpperCase() ?? "GET";
   const headers = new Headers(options?.headers);
   if (!["GET", "HEAD", "OPTIONS"].includes(method)) {
@@ -78,6 +80,27 @@ export async function request<T>(url: string, options?: RequestInit): Promise<T>
   if (response.status === 204) return undefined as T;
   const body = await response.text();
   return body ? JSON.parse(body) as T : undefined as T;
+}
+
+export function request<T>(url: string, options?: RequestInit): Promise<T> {
+  const method = options?.method?.toUpperCase() ?? "GET";
+  if (method !== "GET") {
+    inFlightGets.clear();
+    return performRequest<T>(url, options);
+  }
+
+  // StrictMode may start the same mount-time lookup twice; share only that pending request.
+  if (options?.signal) return performRequest<T>(url, options);
+  const headers = new Headers(options?.headers);
+  const key = `${url}\n${JSON.stringify([...headers.entries()])}`;
+  const pending = inFlightGets.get(key);
+  if (pending) return pending as Promise<T>;
+
+  const current = performRequest<T>(url, options).finally(() => {
+    if (inFlightGets.get(key) === current) inFlightGets.delete(key);
+  });
+  inFlightGets.set(key, current);
+  return current;
 }
 
 export const jsonHeaders = { "Content-Type": "application/json" };

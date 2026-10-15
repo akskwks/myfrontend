@@ -2680,7 +2680,8 @@ body {
 .calendar-page-content,
 .memo-page-content,
 .work-page-content,
-.ai-page-content {
+.ai-page-content,
+.system-log-page-content {
   display: flex;
   min-height: 0;
   flex-direction: column;
@@ -2705,7 +2706,8 @@ body {
 .calendar-page-content > .page-header,
 .memo-page-content > .page-header,
 .work-page-content > .page-header,
-.ai-page-content > .page-header {
+.ai-page-content > .page-header,
+.system-log-page-content > .page-header {
   min-height: 138px;
   flex: 0 0 auto;
   padding: 24px 4px 18px;
@@ -2714,6 +2716,234 @@ body {
 .app-main .page-header h1 {
   margin-bottom: 8px;
   font-size: 2.25rem;
+}
+
+.system-log-panel {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  padding: 0 4px;
+}
+
+.system-log-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 10px 14px;
+  padding-bottom: 16px;
+}
+
+.system-log-filters label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.system-log-filters label:first-child {
+  flex: 1 1 240px;
+}
+.system-log-filters input,
+.system-log-filters select {
+  height: 38px;
+  min-width: 130px;
+  padding: 5px 10px;
+  border-radius: 8px;
+  border: 1px solid #c7c7c7;
+}
+.system-log-filters .primary-button {
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.system-log-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0 10px;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+.system-log-reset-widths {
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+.system-log-reset-widths:hover {
+  background: #eaf1ee;
+  color: #176c61;
+}
+.system-log-table-wrap {
+  min-height: 0;
+  flex: 1;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+}
+.system-log-table {
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+.system-log-table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 12px 16px;
+  background: #f7f9f8;
+  text-align: center;
+  color: #596963;
+  font-weight: 700;
+}
+.system-log-table th,
+.system-log-table td {
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.system-log-table td {
+  padding: 12px 14px;
+  text-align: center;
+}
+.system-log-column-resizer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 10px;
+  cursor: col-resize;
+  touch-action: none;
+}
+.system-log-column-resizer::after {
+  content: "";
+  position: absolute;
+  top: 22%;
+  bottom: 22%;
+  left: 4px;
+  width: 2px;
+  border-radius: 2px;
+  background: #c7d6d0;
+}
+.system-log-column-resizer:hover::after,
+.system-log-column-resizer:focus-visible::after {
+  background: #176c61;
+}
+.system-log-column-resizer:focus-visible {
+  outline: 2px solid #176c61;
+  outline-offset: -2px;
+}
+.system-log-table tbody tr:hover {
+  background: #f8fbfa;
+}
+.system-log-table td.system-log-api {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
+}
+.system-log-api strong {
+  margin-right: 4px;
+  color: #116e60;
+}
+.system-log-status {
+  font-weight: 700;
+}
+.system-log-status.is-success {
+  color: #0d765e;
+}
+.system-log-status.is-failure {
+  color: #b34646;
+}
+.system-log-view {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 0;
+  background: transparent;
+  color: #176c61;
+  cursor: pointer;
+}
+.system-log-view:hover {
+  text-decoration: underline;
+}
+.system-log-empty {
+  text-align: center;
+  color: var(--muted);
+}
+.system-log-error {
+  color: #b34646;
+}
+.system-log-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 12px;
+}
+.system-log-pagination button {
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 5px 10px;
+  background: white;
+  cursor: pointer;
+}
+.system-log-pagination button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.system-log-dialog {
+  width: min(720px, calc(100vw - 32px));
+  max-height: min(80vh, 800px);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0;
+  box-shadow: 0 20px 60px #13252033;
+}
+.system-log-dialog::backdrop {
+  background: #13252066;
+}
+.system-log-dialog header {
+  background: #ececec;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--line);
+}
+.system-log-dialog h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+.system-log-dialog header button {
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.system-log-dialog pre {
+  margin: 0;
+  padding: 20px;
+  max-height: 60vh;
+  overflow: auto;
+  font-size: 0.85rem;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.system-log-denied {
+  margin: auto;
+  color: var(--muted);
 }
 
 .calendar-page-content .planner-layout {
