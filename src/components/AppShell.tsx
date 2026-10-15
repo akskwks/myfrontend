@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { Sidebar, type AppSection } from "./Sidebar";
+import { AppFooter } from "./AppFooter";
 
 type AppShellProps = {
   active: AppSection;
@@ -21,6 +22,7 @@ export function AppShell({
         className={`app-main ${scrollable ? "is-scrollable" : ""} ${className}`.trim()}
       >
         {children}
+        <AppFooter />
       </main>
     </div>
   );

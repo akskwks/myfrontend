@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { Eye, EyeOff, LockKeyhole } from "lucide-react";
 import { register } from "../api/userApi";
 import { useAppDialog } from "../components/AppDialog";
+import { AppFooter } from "../components/AppFooter";
 import { useUser } from "../user/UserContext";
 
 export function UserPage() {
@@ -100,6 +101,7 @@ export function UserPage() {
           <button type="button" onClick={() => changeMode(mode === "login" ? "register" : "login")}>{mode === "login" ? "회원가입" : "로그인"}</button>
         </div>
       </div>
+      <AppFooter />
     </main>
   );
 }
