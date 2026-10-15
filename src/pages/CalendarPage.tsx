@@ -221,12 +221,22 @@ export function CalendarPage() {
         destructive: true,
       }))
     ) return;
-    await deleteCalendarEvent(eventId);
+    try {
+      await deleteCalendarEvent(eventId);
+    } catch {
+      setMessage("일정을 삭제하지 못했습니다. 잠시 후 다시 시도해 주세요.");
+      return;
+    }
+    setEvents((current) => current.filter((event) => event.eventId !== eventId));
     if (editingId === eventId) {
       setEditingId(null);
       setPayload(emptyPayload(selectedDate));
     }
-    await loadEvents();
+    try {
+      await loadEvents();
+    } catch {
+      setMessage("일정을 삭제했습니다. 목록을 다시 불러오려면 화면을 새로고침해 주세요.");
+    }
   }
 
   return (

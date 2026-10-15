@@ -76,7 +76,8 @@ export async function request<T>(url: string, options?: RequestInit): Promise<T>
   }
 
   if (response.status === 204) return undefined as T;
-  return response.json() as Promise<T>;
+  const body = await response.text();
+  return body ? JSON.parse(body) as T : undefined as T;
 }
 
 export const jsonHeaders = { "Content-Type": "application/json" };

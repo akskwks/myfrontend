@@ -1,10 +1,12 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { Eye, EyeOff, LockKeyhole } from "lucide-react";
 import { register } from "../api/userApi";
+import { useAppDialog } from "../components/AppDialog";
 import { useUser } from "../user/UserContext";
 
 export function UserPage() {
   const { signIn, startupError } = useUser();
+  const dialog = useAppDialog();
   const [mode, setMode] = useState<"login" | "register">(location.hash === "#/register" ? "register" : "login");
   const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
@@ -13,7 +15,6 @@ export function UserPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
-  const [notice, setNotice] = useState("");
 
   useEffect(() => {
     const syncRoute = () => {
@@ -32,7 +33,6 @@ export function UserPage() {
   function changeMode(nextMode: "login" | "register") {
     setMode(nextMode);
     setError("");
-    setNotice("");
     setPassword("");
     setPasswordConfirm("");
     location.hash = nextMode === "register" ? "#/register" : "#/login";
@@ -41,7 +41,6 @@ export function UserPage() {
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
-    setNotice("");
     if (!userId.trim() || !password) {
       setError("아이디와 비밀번호를 입력해 주세요.");
       return;
@@ -60,8 +59,11 @@ export function UserPage() {
     try {
       if (mode === "register") {
         await register({ userId: userId.trim(), password, passwordConfirm, userName: userName.trim() });
+        await dialog.alert({
+          title: "회원가입 완료",
+          message: "회원가입이 성공적으로 완료되었습니다. 로그인해 주세요.",
+        });
         changeMode("login");
-        setNotice("가입이 완료되었습니다. 로그인해 주세요.");
       } else {
         await signIn({ userId: userId.trim(), password });
       }
@@ -91,7 +93,6 @@ export function UserPage() {
           </div>
           {mode === "register" && <><label htmlFor="auth-confirm">비밀번호 확인</label><input id="auth-confirm" type="password" value={passwordConfirm} onChange={(event) => setPasswordConfirm(event.target.value)} autoComplete="new-password" /></>}
           {(error || (mode === "login" && startupError)) && <p className="auth-error" role="alert">{error || startupError}</p>}
-          {notice && <p className="auth-notice" role="status">{notice}</p>}
           <button className="auth-submit" type="submit" disabled={pending}>{pending ? "처리 중..." : mode === "login" ? "로그인" : "회원가입"}</button>
         </form>
         <div className="auth-switch">

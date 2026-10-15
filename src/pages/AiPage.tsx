@@ -21,29 +21,30 @@ import {
 import { ApiError } from "../api/http";
 import { AppShell } from "../components/AppShell";
 import { useAppDialog } from "../components/AppDialog";
+import { useUser } from "../user/UserContext";
 import type { AiConversation, AiChatJob, ChatMessage } from "../types/aichat";
 
 const PENDING_AI_REQUEST_KEY = "myapp.ai.pending-request";
 
 type PendingAiRequest = Pick<AiChatJob, "requestId" | "conversationId">;
 
-function readPendingRequests(): PendingAiRequest[] {
+function readPendingRequests(key: string): PendingAiRequest[] {
   try {
-    const value = localStorage.getItem(PENDING_AI_REQUEST_KEY);
+    const value = localStorage.getItem(key);
     if (!value) return [];
     const parsed = JSON.parse(value) as PendingAiRequest | PendingAiRequest[];
     return Array.isArray(parsed) ? parsed : [parsed];
   } catch {
-    localStorage.removeItem(PENDING_AI_REQUEST_KEY);
+    localStorage.removeItem(key);
     return [];
   }
 }
 
-function savePendingRequests(requests: PendingAiRequest[]) {
+function savePendingRequests(key: string, requests: PendingAiRequest[]) {
   if (requests.length) {
-    localStorage.setItem(PENDING_AI_REQUEST_KEY, JSON.stringify(requests));
+    localStorage.setItem(key, JSON.stringify(requests));
   } else {
-    localStorage.removeItem(PENDING_AI_REQUEST_KEY);
+    localStorage.removeItem(key);
   }
 }
 
@@ -54,13 +55,15 @@ const suggestions = [
 ];
 
 export function AiPage() {
+  const { user } = useUser();
+  const pendingKey = `${PENDING_AI_REQUEST_KEY}.${user?.userNum}`;
   const dialog = useAppDialog();
   const [conversations, setConversations] = useState<AiConversation[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [question, setQuestion] = useState("");
   const [pendingRequests, setPendingRequests] = useState<PendingAiRequest[]>(
-    readPendingRequests,
+    () => readPendingRequests(pendingKey),
   );
   const [startingRequest, setStartingRequest] = useState(false);
   const [stoppingRequestId, setStoppingRequestId] = useState<string | null>(null);
@@ -192,7 +195,7 @@ export function AiPage() {
           const next = current.filter(
             (request) => !finishedIds.has(request.requestId),
           );
-          savePendingRequests(next);
+          savePendingRequests(pendingKey, next);
           return next;
         });
       } catch (cause) {
@@ -207,7 +210,7 @@ export function AiPage() {
       active = false;
       if (timer !== undefined) window.clearTimeout(timer);
     };
-  }, [pendingRequests, selectedId]);
+  }, [pendingRequests, selectedId, pendingKey]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
@@ -334,7 +337,7 @@ export function AiPage() {
           ),
           pending,
         ];
-        savePendingRequests(next);
+        savePendingRequests(pendingKey, next);
         return next;
       });
       if (selectedId === null) setSelectedId(job.conversationId);
@@ -371,7 +374,7 @@ export function AiPage() {
       }
       setPendingRequests((current) => {
         const next = current.filter((item) => item.requestId !== request.requestId);
-        savePendingRequests(next);
+        savePendingRequests(pendingKey, next);
         return next;
       });
       const [items, conversationItems] = await Promise.all([
