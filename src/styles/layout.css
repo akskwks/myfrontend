@@ -1,0 +1,169 @@
+/**
+*
+* 파일명 : layout.css
+* 역할 : 사이드바와 본문, 푸터의 공통 레이아웃 스타일
+* 생성일 : 2026-10-16
+*
+**/
+
+/* Application shell */
+html,
+body,
+#app {
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.app-layout {
+  display: grid;
+  width: 100%;
+  height: 100dvh;
+  grid-template-columns: 232px minmax(0, 1fr);
+  overflow: hidden;
+}
+
+.app-sidebar {
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+  padding: 22px 14px 16px;
+  overflow-y: auto;
+  border-right: 1px solid #d8e1dc;
+  background: #10231f;
+  color: #f4f8f6;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 0 8px 22px;
+  color: #fff;
+  text-decoration: none;
+}
+
+.sidebar-brand > span:last-child,
+.sidebar-account > span {
+  display: grid;
+  min-width: 0;
+}
+
+.sidebar-brand strong {
+  font-size: 1.1rem;
+}
+
+.sidebar-brand small,
+.sidebar-account small {
+  color: #9fb3ac;
+  font-size: 0.85rem;
+}
+
+.app-sidebar .brand-mark {
+  flex: 0 0 auto;
+  background: #22a78e;
+}
+
+.sidebar-nav {
+  display: grid;
+  gap: 5px;
+}
+
+.sidebar-nav a {
+  display: flex;
+  min-height: 46px;
+  align-items: center;
+  gap: 11px;
+  padding: 10px 12px;
+  border-radius: 7px;
+  color: #b9c9c3;
+  font-size: 0.92rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition:
+    background 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+.sidebar-nav a:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: #fff;
+  transform: translateX(2px);
+}
+
+.sidebar-nav a.is-current {
+  background: #e2f5ee;
+  color: #075e50;
+}
+
+.sidebar-account {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: auto;
+  padding: 13px 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  color: #dce8e3;
+}
+
+.sidebar-account strong {
+  font-size: 0.87rem;
+}
+
+.app-main {
+  min-width: 0;
+  min-height: 0;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.app-main.is-scrollable {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.calendar-page-content,
+.memo-page-content,
+.work-page-content,
+.ai-page-content,
+.system-log-page-content {
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+  padding: 0 24px;
+}
+
+.app-footer {
+  display: flex;
+  min-height: 38px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 22px;
+  padding: 8px 4px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.calendar-page-content > .page-header,
+.memo-page-content > .page-header,
+.work-page-content > .page-header,
+.ai-page-content > .page-header,
+.system-log-page-content > .page-header {
+  min-height: 138px;
+  flex: 0 0 auto;
+  padding: 24px 4px 18px;
+}
+
+.app-main .page-header h1 {
+  margin-bottom: 8px;
+  font-size: 2.25rem;
+}

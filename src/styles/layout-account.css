@@ -1,0 +1,35 @@
+/**
+*
+* 파일명 : layout-account.css
+* 역할 : 사이드바 계정 표시와 로그아웃 버튼 스타일
+* 생성일 : 2026-10-16
+*
+**/
+
+.sidebar-account > span {
+  flex: 1;
+}
+
+.sidebar-account button {
+  display: grid;
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #dce8e3;
+}
+
+.sidebar-account button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.sidebar-account-error {
+  margin: 0;
+  padding: 0 8px;
+  color: #ffd5d0;
+  font-size: 0.75rem;
+}

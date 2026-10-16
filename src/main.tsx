@@ -8,7 +8,7 @@
 
 import { StrictMode, useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
-import "./style.css";
+import "./styles/index.css";
 import { AppDialogProvider } from "./components/AppDialog";
 import { UserProvider, useUser } from "./user/UserContext";
 import { UserPage } from "./pages/UserPage";

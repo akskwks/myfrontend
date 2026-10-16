@@ -1,0 +1,152 @@
+/**
+*
+* 파일명 : responsive.css
+* 역할 : 공통 화면의 태블릿·모바일 반응형 스타일
+* 생성일 : 2026-10-16
+*
+**/
+
+@media (max-width: 900px) {
+  .shell {
+    width: min(100% - 24px, 720px);
+    padding-top: 12px;
+  }
+
+  .hero-section,
+  .workflow,
+  .planner-layout,
+  .memo-layout,
+  .ai-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .conversation-sidebar {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .conversation-list {
+    display: flex;
+    max-height: none;
+    overflow-x: auto;
+  }
+
+  .conversation-item {
+    min-width: 210px;
+  }
+
+  .hero-section {
+    padding-top: 28px;
+  }
+
+  .hero-copy,
+  .hero-panel {
+    min-height: 470px;
+  }
+
+  h1 {
+    font-size: 2.85rem;
+  }
+
+  .page-header {
+    min-height: 230px;
+    padding-inline: 16px;
+  }
+}
+
+@media (max-width: 560px) {
+  .shell {
+    width: min(100% - 20px, 480px);
+  }
+
+  .hero-copy,
+  .hero-panel,
+  .calendar-panel,
+  .editor-panel,
+  .memo-list-panel,
+  .workflow {
+    min-height: auto;
+    padding: 20px;
+  }
+
+  h1,
+  .page-header h1 {
+    font-size: 2.2rem;
+  }
+
+  .hero-text {
+    font-size: 1rem;
+  }
+
+  .hero-actions,
+  .hero-actions > *,
+  .page-header > .secondary-button {
+    width: 100%;
+  }
+
+  .metrics,
+  .form-grid,
+  .memo-detail-meta,
+  .search-form,
+  .chat-input-row {
+    grid-template-columns: 1fr;
+  }
+
+  .memo-page-actions,
+  .dialog-actions,
+  .memo-detail-panel .button-group {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .memo-page-actions .primary-button,
+  .dialog-actions .primary-button,
+  .dialog-actions .secondary-button,
+  .memo-detail-panel .button-group .secondary-button {
+    width: 100%;
+  }
+
+  .page-header {
+    min-height: 250px;
+    align-items: flex-start;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 22px;
+    padding: 40px 12px 24px;
+  }
+
+  .calendar-day {
+    min-height: 58px;
+    padding: 7px;
+  }
+
+  .weekday-grid,
+  .month-grid {
+    gap: 5px;
+  }
+
+  .event-card {
+    grid-template-columns: 8px 1fr;
+  }
+
+  .event-card .card-actions {
+    grid-column: 2;
+  }
+
+  .suggestion-list {
+    grid-template-columns: 1fr;
+  }
+
+  .chat-log {
+    min-height: 400px;
+    padding: 18px;
+  }
+
+  .chat-message {
+    width: 94%;
+  }
+
+  .chat-form {
+    padding: 18px;
+  }
+}

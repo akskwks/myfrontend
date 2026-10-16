@@ -1,0 +1,247 @@
+/**
+*
+* 파일명 : memo.css
+* 역할 : 메모 목록, 상세, 작성 화면 스타일
+* 생성일 : 2026-10-16
+*
+**/
+
+.memo-card {
+  padding: 18px;
+}
+
+.memo-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.memo-meta span {
+  color: var(--accent-dark);
+  font-weight: 850;
+}
+
+.memo-card p {
+  display: -webkit-box;
+  overflow: hidden;
+  margin-bottom: 16px;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+}
+
+.memo-card pre,
+.chat-message pre {
+  overflow-x: auto;
+  margin: 12px 0 16px;
+  padding: 14px;
+  border-radius: 7px;
+  background: #17201d;
+  color: #e8f2ed;
+  font:
+    0.84rem/1.55 "SFMono-Regular",
+    Consolas,
+    monospace;
+  white-space: pre-wrap;
+}
+
+.memo-page-panel,
+.memo-detail-panel,
+.memo-form-panel,
+.work-page-panel,
+.work-detail-panel,
+.work-form-panel {
+  margin: 0 auto 28px;
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: var(--shadow);
+}
+
+.memo-page-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.memo-page-actions p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.memo-board-wrap {
+  overflow-x: auto;
+  margin-top: 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fff;
+}
+
+.memo-board-table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+}
+
+.memo-board-table th,
+.memo-board-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.memo-board-table th {
+  background: #f7faf8;
+  color: var(--muted);
+  font-size: 0.92rem;
+  font-weight: 850;
+}
+
+.memo-board-table th:first-child,
+.memo-board-table td:first-child {
+  width: 80px;
+  text-align: center;
+}
+
+.memo-board-table th:nth-child(2),
+.memo-board-table td:nth-child(2) {
+  width: 110px;
+}
+
+.memo-board-table th:nth-child(4),
+.memo-board-table td:nth-child(4) {
+  width: 130px;
+  color: var(--muted);
+  /* font-size: 0.9rem; */
+  white-space: nowrap;
+}
+
+.memo-board-table tbody tr {
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.memo-board-table tbody tr:hover,
+.memo-board-table tbody tr:focus-visible {
+  background: #f3fbf7;
+  outline: none;
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+.memo-board-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.memo-board-id {
+  color: var(--muted);
+  font-weight: 750;
+}
+
+.memo-board-title {
+  max-width: 420px;
+  overflow: hidden;
+  color: var(--ink);
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.memo-sort-badge {
+  display: inline-flex;
+  min-width: 52px;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent-dark);
+  font-size: 0.85rem;
+  font-weight: 850;
+}
+
+.memo-detail-meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  overflow: hidden;
+  margin: 22px 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--line);
+}
+
+.memo-detail-meta div {
+  min-height: 86px;
+  padding: 16px;
+  background: #fff;
+}
+
+.memo-detail-meta dt {
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.memo-detail-meta dd {
+  margin: 0;
+  color: var(--ink);
+  font-weight: 750;
+}
+
+.memo-title-input {
+  width: min(640px, 100%);
+  margin: 0;
+  padding: 8px 10px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  outline: none;
+  background: transparent;
+  color: var(--ink);
+  font-size: 1.55rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.memo-title-input:hover,
+.memo-title-input:focus {
+  border-color: var(--accent);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(8, 127, 108, 0.1);
+}
+
+.memo-detail-sort {
+  width: 100%;
+  border: 1px solid #cbd5cf;
+  border-radius: 7px;
+  padding: 8px 10px;
+  outline: none;
+  background: #fff;
+  color: var(--text);
+}
+
+.memo-save-status {
+  display: flex;
+  min-height: 28px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: 8px;
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.memo-save-status .form-error {
+  margin: 0;
+}
+
+.memo-editor-form {
+  margin-top: 18px;
+}

@@ -1,0 +1,88 @@
+/**
+*
+* 파일명 : page-layout.css
+* 역할 : 캘린더·메모·업무·AI 화면의 콘텐츠 높이와 스크롤 스타일
+* 생성일 : 2026-10-16
+*
+**/
+
+.calendar-page-content .planner-layout {
+  min-height: 0;
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.calendar-page-content .calendar-panel,
+.calendar-page-content .editor-panel {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.memo-page-content > .memo-page-panel,
+.memo-page-content > .memo-detail-panel,
+.memo-page-content > .memo-form-panel,
+.work-page-content > .work-page-panel,
+.work-page-content > .work-detail-panel,
+.work-page-content > .work-form-panel {
+  width: 100%;
+  min-height: 0;
+  flex: 1;
+  margin-bottom: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.memo-page-content > .memo-list-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.work-page-content > .work-list-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.memo-page-content .memo-board-wrap {
+  min-height: 0;
+  flex: 1;
+  overflow: auto;
+}
+
+.ai-page-content .ai-workspace {
+  min-height: 0;
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.ai-page-content .conversation-sidebar,
+.ai-page-content .chat-panel {
+  min-height: 0;
+  height: 100%;
+}
+
+.ai-page-content .conversation-sidebar {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.ai-page-content .conversation-list {
+  min-height: 0;
+  max-height: none;
+  flex: 1;
+}
+
+.ai-page-content .chat-log {
+  min-height: 0;
+  max-height: none;
+  flex: 1;
+}
+
+.ai-page-content .chat-form,
+.ai-page-content .chat-panel-header,
+.ai-page-content .conversation-sidebar-header {
+  flex: 0 0 auto;
+}
+
+/* AI-focused home */

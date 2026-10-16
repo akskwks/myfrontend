@@ -1,0 +1,369 @@
+/**
+*
+* 파일명 : calendar.css
+* 역할 : 캘린더 그리드, 일정 카드, 날짜 선택기와 공통 입력 폼 스타일
+* 생성일 : 2026-10-16
+*
+**/
+
+.planner-layout,
+.memo-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(360px, 0.85fr);
+  gap: 18px;
+  margin-bottom: 28px;
+}
+
+.memo-layout {
+  grid-template-columns: minmax(340px, 0.78fr) minmax(0, 1.22fr);
+}
+
+.calendar-panel,
+.editor-panel,
+.memo-list-panel {
+  padding: 24px;
+}
+
+.weekday-grid,
+.month-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.weekday-grid {
+  margin: 22px 0 8px;
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+.calendar-day {
+  display: flex;
+  min-height: 76px;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--text);
+  text-align: left;
+  transition:
+    border-color 160ms ease,
+    transform 160ms ease,
+    background 160ms ease;
+}
+
+.calendar-day:hover,
+.calendar-day.is-selected {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  transform: translateY(-1px);
+}
+
+.calendar-day.is-empty {
+  border: 1px dashed transparent;
+  background: transparent;
+}
+
+.calendar-day span {
+  font-weight: 850;
+}
+
+.calendar-day div {
+  display: flex;
+  gap: 4px;
+  min-height: 8px;
+}
+
+.calendar-day i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.status-text {
+  margin-top: 16px;
+  font-size: 0.9rem;
+}
+
+.event-list,
+.memo-list {
+  display: grid;
+  gap: 10px;
+  margin: 18px 0;
+}
+
+.event-card,
+.memo-card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fff;
+}
+
+.event-card {
+  display: grid;
+  grid-template-columns: 8px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 14px;
+}
+
+.event-card.is-linked {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(8, 127, 108, 0.12);
+}
+
+.event-card > span {
+  width: 8px;
+  height: 42px;
+  border-radius: 999px;
+}
+
+.event-card p,
+.memo-card p {
+  margin-bottom: 0;
+  color: var(--muted);
+  white-space: pre-line;
+}
+
+.event-description {
+  display: -webkit-box;
+  overflow: hidden;
+  margin: 2px 0 4px;
+  color: var(--muted);
+  font-size: 0.88rem;
+  font-style: normal;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.card-actions {
+  gap: 8px;
+}
+
+.card-actions button {
+  padding: 7px 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--text);
+  font-weight: 700;
+}
+
+.card-actions .danger-button {
+  color: var(--danger);
+}
+
+.empty-state {
+  min-height: 150px;
+  padding: 34px 22px;
+  border: 1px dashed #bdc9c2;
+  border-radius: var(--radius);
+  text-align: center;
+}
+
+.empty-state p {
+  margin-bottom: 0;
+  color: var(--muted);
+}
+
+.stack-form {
+  display: grid;
+  gap: 14px;
+}
+
+.stack-form label,
+.search-form label {
+  display: grid;
+  gap: 7px;
+  color: var(--ink);
+  font-size: 0.9rem;
+  font-weight: 750;
+}
+
+.stack-form input,
+.stack-form textarea,
+.stack-form select,
+.search-form input,
+.search-form select,
+.chat-input-row textarea {
+  width: 100%;
+  border: 1px solid #cbd5cf;
+  border-radius: 7px;
+  padding: 5px 6px;
+  outline: none;
+  color: var(--text);
+  background: #fff;
+}
+
+.stack-form textarea,
+.chat-input-row textarea {
+  resize: vertical;
+}
+
+.stack-form input:focus,
+.stack-form textarea:focus,
+.stack-form select:focus,
+.search-form input:focus,
+.search-form select:focus,
+.chat-input-row textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(8, 127, 108, 0.12);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.date-picker-control {
+  position: relative;
+  min-width: 0;
+}
+
+.date-picker-control > svg {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  z-index: 1;
+  color: var(--accent-dark);
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
+.date-picker-control .react-datepicker-wrapper,
+.date-picker-control .react-datepicker__input-container {
+  display: block;
+  width: 100%;
+}
+
+.stack-form .date-picker-input {
+  padding-left: 38px;
+  cursor: pointer;
+}
+
+.stack-form input[type="time"].date-picker-input {
+  cursor: text;
+}
+
+.calendar-time-error {
+  margin: -2px 0 0;
+  color: var(--danger);
+  font-size: 0.84rem;
+}
+
+.react-datepicker-popper {
+  z-index: 40;
+}
+
+.myapp-date-picker,
+.myapp-time-picker {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 18px 42px rgba(31, 44, 38, 0.16);
+  color: var(--text);
+  font-family: inherit;
+}
+
+.myapp-date-picker .react-datepicker__header,
+.myapp-time-picker .react-datepicker__header {
+  border-bottom: 1px solid var(--line);
+  background: #f5f9f7;
+}
+
+.myapp-date-picker .react-datepicker__current-month,
+.myapp-date-picker .react-datepicker__day-name,
+.myapp-time-picker .react-datepicker-time__header {
+  color: var(--text);
+}
+
+.myapp-date-picker .react-datepicker__month-select,
+.myapp-date-picker .react-datepicker__year-select {
+  margin: 2px 3px;
+  padding: 5px 7px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: #fff;
+  color: var(--text);
+}
+
+.myapp-date-picker .react-datepicker__day:hover,
+.myapp-time-picker .react-datepicker__time-list-item:hover {
+  background: var(--accent-soft) !important;
+  color: var(--accent-dark);
+}
+
+.myapp-date-picker .react-datepicker__day--selected,
+.myapp-date-picker .react-datepicker__day--keyboard-selected,
+.myapp-time-picker .react-datepicker__time-list-item--selected {
+  background: var(--accent) !important;
+  color: #fff !important;
+}
+
+.myapp-date-picker .react-datepicker__today-button {
+  border-top: 1px solid var(--line);
+  background: #fff;
+  color: var(--accent-dark);
+  font-weight: 800;
+}
+
+.myapp-time-picker .react-datepicker__time-container,
+.myapp-time-picker .react-datepicker__time-box {
+  width: 132px !important;
+}
+
+.myapp-time-picker .react-datepicker__time-list {
+  width: 132px !important;
+  height: 230px !important;
+}
+
+.color-row {
+  display: flex;
+  gap: 8px;
+}
+
+.color-row button {
+  width: 30px;
+  height: 30px;
+  border: 2px solid transparent;
+  border-radius: 50%;
+}
+
+.color-row button.is-selected {
+  border-color: var(--ink);
+}
+
+.button-group {
+  gap: 8px;
+}
+
+.icon-button {
+  display: inline-grid;
+  width: 35px;
+  height: 35px;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: #fff;
+  color: var(--muted);
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.icon-button:hover {
+  background-color: var(--accent-soft);
+}
+
+.search-form {
+  display: grid;
+  grid-template-columns: 80px minmax(0, 1fr) auto;
+  gap: 10px;
+  margin: 18px 0;
+}

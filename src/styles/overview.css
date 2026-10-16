@@ -1,0 +1,198 @@
+/**
+*
+* 파일명 : overview.css
+* 역할 : 홈 소개와 기존 개요 패널의 스타일
+* 생성일 : 2026-10-16
+*
+**/
+
+.hero-section {
+  display: grid;
+  grid-template-columns: minmax(0, 1.03fr) minmax(340px, 0.72fr);
+  gap: 28px;
+  padding: 58px 0 28px;
+}
+
+.hero-copy,
+.hero-panel,
+.calendar-panel,
+.editor-panel,
+.memo-list-panel,
+.chat-panel {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: var(--shadow);
+}
+
+.hero-copy {
+  display: flex;
+  min-height: 520px;
+  flex-direction: column;
+  justify-content: center;
+  padding: 42px;
+}
+
+.hero-text {
+  max-width: 620px;
+  margin-bottom: 28px;
+  color: var(--muted);
+  font-size: 1.1rem;
+}
+
+.hero-actions {
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.hero-panel {
+  display: flex;
+  min-height: 520px;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 22px;
+  padding: 24px;
+  background: linear-gradient(180deg, #fff, #eff6f2);
+}
+
+.panel-header,
+.section-heading {
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.panel-header h2,
+.section-heading h2 {
+  margin: 0;
+}
+
+.panel-kicker {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.live-pill,
+.stage-badge {
+  flex: 0 0 auto;
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent-dark);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.hero-image {
+  align-self: center;
+  width: min(76%, 300px);
+  height: auto;
+  filter: drop-shadow(0 22px 30px rgba(8, 99, 84, 0.18));
+}
+
+.task-list {
+  display: grid;
+  gap: 10px;
+}
+
+.task-item {
+  display: grid;
+  grid-template-columns: 14px 1fr;
+  gap: 12px;
+  min-height: 82px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.task-item p,
+.workflow p,
+.section-heading > p,
+.status-text {
+  margin-bottom: 0;
+  color: var(--muted);
+}
+
+.task-dot {
+  width: 10px;
+  height: 10px;
+  margin-top: 6px;
+  border-radius: 50%;
+  background: var(--warning);
+}
+
+.task-item.is-active {
+  border-color: rgba(8, 127, 108, 0.32);
+  background: rgba(218, 243, 235, 0.55);
+}
+
+.task-item.is-active .task-dot {
+  background: var(--accent);
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  overflow: hidden;
+  margin-bottom: 28px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--line);
+}
+
+.metrics div {
+  display: grid;
+  gap: 4px;
+  min-height: 112px;
+  align-content: center;
+  padding: 22px;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.metrics strong {
+  color: var(--ink);
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.metrics span {
+  color: var(--muted);
+  font-weight: 650;
+}
+
+.workflow {
+  display: grid;
+  grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.25fr);
+  gap: 28px;
+  margin-bottom: 28px;
+  padding: 28px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.steps {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.steps li {
+  display: grid;
+  grid-template-columns: 92px 1fr;
+  gap: 18px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.steps li:last-child {
+  border-bottom: 0;
+}
+
+.steps span {
+  color: var(--ink);
+  font-weight: 850;
+}

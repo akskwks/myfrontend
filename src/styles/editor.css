@@ -1,0 +1,229 @@
+/**
+*
+* 파일명 : editor.css
+* 역할 : 메모와 업무에서 공유하는 TipTap 편집기 스타일
+* 생성일 : 2026-10-16
+*
+**/
+
+.tiptap-shell {
+  overflow: hidden;
+  border: 1px solid #d9e3ea;
+  border-radius: 4px;
+  background: #fff;
+}
+
+.tiptap-shell.is-editable {
+  background: #fff;
+}
+
+.tiptap-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  min-height: 39px;
+  padding: 7px 13px;
+  border-bottom: 1px solid #edf1f4;
+  background: #fff;
+}
+
+.tiptap-toolbar button {
+  display: inline-grid;
+  width: 28px;
+  height: 26px;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: #1f2937;
+  font-size: 0.7rem;
+  font-weight: 800;
+  line-height: 1;
+  transition:
+    background 150ms ease,
+    color 150ms ease;
+}
+
+.tiptap-toolbar button:hover,
+.tiptap-toolbar button.is-active {
+  background: #f1f5f9;
+  color: #0f766e;
+}
+
+.tiptap-toolbar button.is-danger:hover {
+  background: #fff1f0;
+  color: var(--danger);
+}
+
+.tiptap-toolbar button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.tiptap-toolbar button sub {
+  font-size: 0.48rem;
+  line-height: 0;
+}
+
+.tiptap-toolbar-divider {
+  width: 1px;
+  height: 18px;
+  margin: 0 2px;
+  background: #e2e8f0;
+}
+
+.tiptap-table-tools {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.toolbar-underlined {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.tiptap-shell .ProseMirror {
+  min-height: 360px;
+  padding: 13px;
+  outline: none;
+  color: var(--text);
+  font-size: 0.94rem;
+  line-height: 1.6;
+}
+
+.memo-form-panel .tiptap-shell .ProseMirror {
+  min-height: 520px;
+}
+
+.tiptap-shell .ProseMirror h1,
+.tiptap-shell .ProseMirror h2,
+.tiptap-shell .ProseMirror h3 {
+  margin: 18px 0 8px;
+}
+
+.tiptap-shell .ProseMirror p {
+  margin: 0 0 0px;
+}
+
+.tiptap-shell .ProseMirror ul,
+.tiptap-shell .ProseMirror ol {
+  padding-left: 24px;
+}
+
+.tiptap-shell .ProseMirror blockquote {
+  margin: 12px 0;
+  padding-left: 14px;
+  border-left: 3px solid var(--accent);
+  color: var(--muted);
+}
+
+.tiptap-shell .ProseMirror pre {
+  overflow-x: auto;
+  padding: 14px;
+  border-radius: 7px;
+  background: #17201d;
+  color: #e8f2ed;
+  font:
+    0.9rem/1.6 "SFMono-Regular",
+    Consolas,
+    monospace;
+}
+
+.tiptap-shell .ProseMirror .tableWrapper {
+  overflow-x: auto;
+  margin: 4px 0 14px;
+}
+
+.tiptap-shell .ProseMirror table {
+  width: 100%;
+  min-width: 560px;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.tiptap-shell .ProseMirror th,
+.tiptap-shell .ProseMirror td {
+  position: relative;
+  min-width: 120px;
+  padding: 12px 14px;
+  border: 1px solid #cbd5cf;
+  vertical-align: top;
+}
+
+.tiptap-shell .ProseMirror th {
+  width: 28%;
+  background: #f3f7f5;
+  color: var(--ink);
+  font-weight: 800;
+}
+
+.tiptap-shell .ProseMirror td:first-child {
+  width: 28%;
+  background: #f8faf9;
+  color: var(--ink);
+  font-weight: 750;
+}
+
+.tiptap-shell .ProseMirror .selectedCell::after {
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 127, 108, 0.1);
+  content: "";
+  pointer-events: none;
+}
+
+.tiptap-shell .ProseMirror ul[data-type="taskList"] {
+  display: grid;
+  gap: 6px;
+  margin: 10px 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+.tiptap-shell .ProseMirror li[data-type="taskItem"] {
+  display: flex;
+  gap: 7px;
+  align-items: flex-start;
+}
+
+.tiptap-shell .ProseMirror li[data-type="taskItem"] > label {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  width: auto;
+  gap: 0;
+  padding-top: 3px;
+  color: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+.tiptap-shell
+  .ProseMirror
+  li[data-type="taskItem"]
+  > label
+  input[type="checkbox"] {
+  width: 13px;
+  height: 13px;
+  margin: 0;
+  padding: 0;
+  accent-color: var(--accent);
+}
+
+.tiptap-shell .ProseMirror li[data-type="taskItem"] > div {
+  flex: 1;
+  min-width: 0;
+}
+
+.tiptap-shell .ProseMirror li[data-type="taskItem"] > div > p {
+  margin: 0;
+}
+
+.editor-helper-text {
+  margin: -4px 0 0;
+  color: var(--muted);
+  font-size: 0.86rem;
+}
