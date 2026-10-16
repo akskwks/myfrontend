@@ -1,3 +1,11 @@
+/**
+*
+* 파일명 : MemoCreate.tsx
+* 역할 : 분류별 템플릿과 TipTap 편집기를 사용하는 메모 작성 화면
+* 생성일 : 2026-09-17
+*
+**/
+
 import { useEffect, useState, type FormEvent } from "react";
 import { createMemo, getMemo, updateMemo } from "../api/memoApi";
 import { TiptapEditor } from "../components/TiptapEditor";

@@ -1,3 +1,11 @@
+/**
+*
+* 파일명 : systemLogApi.ts
+* 역할 : 관리자 감사 로그 목록·상세 백엔드 API 호출을 모아 둔 파일
+* 생성일 : 2026-10-15
+*
+**/
+
 import { request } from "./http";
 import type { SystemLogDetail, SystemLogFilters, SystemLogPageResult } from "../types/systemLog";
 

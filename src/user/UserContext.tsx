@@ -1,3 +1,11 @@
+/**
+*
+* 파일명 : UserContext.tsx
+* 역할 : 로그인 사용자 상태와 로그인·로그아웃 동작을 제공하는 컨텍스트
+* 생성일 : 2026-10-14
+*
+**/
+
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { getCurrentUser, login, logout, type UserInfo, type LoginCredentials } from "../api/userApi";
 import { USER_REQUIRED_EVENT, ApiError, clearCsrfToken } from "../api/http";

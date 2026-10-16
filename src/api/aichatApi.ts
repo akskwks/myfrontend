@@ -1,3 +1,11 @@
+/**
+*
+* 파일명 : aichatApi.ts
+* 역할 : AI 대화방과 채팅 작업 백엔드 API 호출을 모아 둔 파일
+* 생성일 : 2026-09-17
+*
+**/
+
 import type {
   AiChatRequest,
   AiChatJob,

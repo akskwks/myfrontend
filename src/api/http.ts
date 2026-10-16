@@ -1,3 +1,11 @@
+/**
+*
+* 파일명 : http.ts
+* 역할 : CSRF, 인증 오류, GET 요청 공유를 처리하는 공통 HTTP 요청 모듈
+* 생성일 : 2026-09-17
+*
+**/
+
 export class ApiError extends Error {
   status: number;
   code?: string;

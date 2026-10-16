@@ -1,3 +1,11 @@
+/**
+*
+* 파일명 : CalendarPage.tsx
+* 역할 : 월별 일정 조회와 일정 등록·수정·삭제 화면
+* 생성일 : 2026-09-17
+*
+**/
+
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import DatePicker, { registerLocale } from "react-datepicker";
 import { ko } from "date-fns/locale";

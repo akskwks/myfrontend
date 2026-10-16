@@ -1,3 +1,11 @@
+/**
+*
+* 파일명 : WorkAttachments.tsx
+* 역할 : 업무 첨부파일 추가, 삭제, 미리보기 및 다운로드 UI
+* 생성일 : 2026-09-21
+*
+**/
+
 import { useEffect, useRef, useState } from "react";
 import {
   Download,

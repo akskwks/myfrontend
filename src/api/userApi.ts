@@ -1,3 +1,11 @@
+/**
+*
+* 파일명 : userApi.ts
+* 역할 : 회원가입, 로그인, 로그아웃 및 현재 사용자 API 호출을 모아 둔 파일
+* 생성일 : 2026-10-14
+*
+**/
+
 import { clearCsrfToken, jsonHeaders, request } from "./http";
 
 export type UserInfo = {

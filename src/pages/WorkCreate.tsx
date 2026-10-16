@@ -1,3 +1,11 @@
+/**
+*
+* 파일명 : WorkCreate.tsx
+* 역할 : 업무 기본정보, TipTap 내용, 첨부파일을 입력하는 등록 화면
+* 생성일 : 2026-09-18
+*
+**/
+
 import { useState, type FormEvent } from "react";
 import DatePicker, { registerLocale } from "react-datepicker";
 import { ko } from "date-fns/locale";

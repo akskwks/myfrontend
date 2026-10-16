@@ -1,3 +1,11 @@
+/**
+*
+* 파일명 : fileUtils.ts
+* 역할 : 첨부파일 크기와 유형을 표시하고 이미지 여부를 판별하는 유틸리티
+* 생성일 : 2026-09-21
+*
+**/
+
 const IMAGE_MIME_TYPES = new Set([
   "image/png",
   "image/jpeg",

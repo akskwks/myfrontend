@@ -1,3 +1,11 @@
+/**
+*
+* 파일명 : main.tsx
+* 역할 : 인증 상태에 따라 화면을 분기하고 해시 라우트를 렌더링하는 진입 파일
+* 생성일 : 2026-09-17
+*
+**/
+
 import { StrictMode, useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import "./style.css";

@@ -1,3 +1,11 @@
+/**
+*
+* 파일명 : MainPage.tsx
+* 역할 : 주요 기능 메뉴 카드를 보여주는 홈 화면
+* 생성일 : 2026-09-17
+*
+**/
+
 import { useLayoutEffect, useRef, type MouseEvent } from "react";
 import {
   ArrowRight,

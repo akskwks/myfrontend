@@ -1,3 +1,11 @@
+/**
+*
+* 파일명 : calendarApi.ts
+* 역할 : 캘린더 일정 CRUD 백엔드 API 호출을 모아 둔 파일
+* 생성일 : 2026-09-17
+*
+**/
+
 import { jsonHeaders, request } from "./http";
 import type { CalendarEvent, CalendarEventPayload } from "../types/calendar";
 

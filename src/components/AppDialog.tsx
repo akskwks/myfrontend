@@ -1,3 +1,11 @@
+/**
+*
+* 파일명 : AppDialog.tsx
+* 역할 : 공통 알림·확인 모달과 대화상자 호출 API를 제공하는 컴포넌트
+* 생성일 : 2026-10-13
+*
+**/
+
 import {
   createContext,
   useCallback,

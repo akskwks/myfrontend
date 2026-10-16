@@ -1,3 +1,11 @@
+/**
+*
+* 파일명 : TiptapEditor.tsx
+* 역할 : 메모와 업무에서 공유하는 TipTap 서식 편집기
+* 생성일 : 2026-09-17
+*
+**/
+
 import Link from "@tiptap/extension-link";
 import TaskItem from "@tiptap/extension-task-item";
 import TaskList from "@tiptap/extension-task-list";

@@ -1,3 +1,11 @@
+/**
+*
+* 파일명 : projectApi.ts
+* 역할 : 프로젝트 목록 및 등록·수정·삭제 백엔드 API 호출을 모아 둔 파일
+* 생성일 : 2026-09-18
+*
+**/
+
 import { ApiError, jsonHeaders, request } from "./http";
 import type { WorkProject, WorkProjectPayload } from "../types/projectList";
 

@@ -1,3 +1,11 @@
+/**
+*
+* 파일명 : WorkPage.tsx
+* 역할 : 프로젝트별 업무 목록·상세 조회 및 편집을 제공하는 화면
+* 생성일 : 2026-09-18
+*
+**/
+
 import { useEffect, useMemo, useState } from "react";
 import DatePicker, { registerLocale } from "react-datepicker";
 import { ko } from "date-fns/locale";

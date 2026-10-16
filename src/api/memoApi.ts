@@ -1,3 +1,11 @@
+/**
+*
+* 파일명 : memoApi.ts
+* 역할 : 메모 CRUD와 검색 백엔드 API 호출을 모아 둔 파일
+* 생성일 : 2026-09-17
+*
+**/
+
 import { jsonHeaders, request } from "./http";
 import type { Memo, MemoPayload, MemoSort } from "../types/memo";
 

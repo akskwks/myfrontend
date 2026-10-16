@@ -1,3 +1,11 @@
+/**
+*
+* 파일명 : UserPage.tsx
+* 역할 : 사용자 로그인 및 회원가입 화면
+* 생성일 : 2026-10-14
+*
+**/
+
 import { useEffect, useState, type FormEvent } from "react";
 import { Eye, EyeOff, LockKeyhole } from "lucide-react";
 import { register } from "../api/userApi";

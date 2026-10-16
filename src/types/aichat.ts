@@ -1,3 +1,11 @@
+/**
+*
+* 파일명 : aichat.ts
+* 역할 : AI 대화방, 메시지 및 채팅 작업의 TypeScript 타입을 정의하는 파일
+* 생성일 : 2026-09-17
+*
+**/
+
 export type AiChatRequest = {
   conversationId?: number | null;
   message: string;

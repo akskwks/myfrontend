@@ -1,3 +1,11 @@
+/**
+*
+* 파일명 : workApi.ts
+* 역할 : 업무와 업무 첨부파일 백엔드 API 호출을 모아 둔 파일
+* 생성일 : 2026-09-18
+*
+**/
+
 import { request } from "./http";
 import type { Work, WorkFile, WorkPayload } from "../types/workList";
 

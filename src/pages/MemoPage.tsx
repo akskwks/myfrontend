@@ -1,3 +1,11 @@
+/**
+*
+* 파일명 : MemoPage.tsx
+* 역할 : 메모 목록·상세 조회와 상세 화면 편집을 제공하는 화면
+* 생성일 : 2026-09-17
+*
+**/
+
 import { useEffect, useMemo, useState } from "react";
 import { deleteMemo, getMemo, getMemos, updateMemo } from "../api/memoApi";
 import { AppShell } from "../components/AppShell";

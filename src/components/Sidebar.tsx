@@ -1,3 +1,11 @@
+/**
+*
+* 파일명 : Sidebar.tsx
+* 역할 : 권한별 메뉴와 현재 위치, 로그아웃 기능을 제공하는 사이드바
+* 생성일 : 2026-09-17
+*
+**/
+
 import {
   BriefcaseBusiness,
   CalendarDays,

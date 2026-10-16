@@ -1,3 +1,11 @@
+/**
+*
+* 파일명 : style.css
+* 역할 : MyApp 전체 레이아웃, 공통 컴포넌트, 화면별 반응형 스타일을 정의하는 스타일시트
+* 생성일 : 2026-09-17
+*
+**/
+
 :root {
   --bg: #f5f7f8;
   --surface: #ffffff;
@@ -2695,7 +2703,7 @@ body {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  margin-top: 12px;
+  margin-top: 22px;
   padding: 8px 4px;
   border-top: 1px solid var(--line);
   color: var(--muted);
@@ -2870,7 +2878,7 @@ body {
   gap: 4px;
   border: 0;
   background: transparent;
-  color: #176c61;
+  color: #757575;
   cursor: pointer;
 }
 .system-log-view:hover {

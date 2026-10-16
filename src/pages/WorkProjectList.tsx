@@ -1,3 +1,11 @@
+/**
+*
+* 파일명 : WorkProjectList.tsx
+* 역할 : 프로젝트 목록의 조회와 인라인 등록·수정·삭제를 제공하는 화면
+* 생성일 : 2026-09-18
+*
+**/
+
 import {
   useEffect,
   useState,

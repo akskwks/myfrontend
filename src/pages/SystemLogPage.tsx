@@ -1,3 +1,11 @@
+/**
+*
+* 파일명 : SystemLogPage.tsx
+* 역할 : 관리자 감사 로그 검색·그리드·JSON 상세 조회 화면
+* 생성일 : 2026-10-15
+*
+**/
+
 import {
   useEffect,
   useRef,
