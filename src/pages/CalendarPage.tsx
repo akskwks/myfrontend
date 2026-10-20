@@ -6,7 +6,7 @@
 *
 **/
 
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import DatePicker, { registerLocale } from "react-datepicker";
 import { ko } from "date-fns/locale";
 import { CalendarDays, Clock3 } from "lucide-react";
@@ -42,12 +42,14 @@ const categoryColors = [
 ];
 
 const todayText = toDateText(new Date());
+const allDayStart = "00:00";
+const allDayEnd = "23:59";
+const defaultTimes = { startTime: "09:00", endTime: "10:00" };
 
 const emptyPayload = (date = todayText): CalendarEventPayload => ({
   eventTitle: "",
   eventDate: date,
-  startTime: "09:00",
-  endTime: "10:00",
+  ...defaultTimes,
   eventCatg: "personal",
   color: categoryColors[0],
   event_dsc: "",
@@ -67,6 +69,10 @@ function toDateValue(value: string) {
 
 function normalizeTime(value: string) {
   return value.slice(0, 5);
+}
+
+function isAllDay(startTime: string, endTime: string) {
+  return normalizeTime(startTime) === allDayStart && normalizeTime(endTime) === allDayEnd;
 }
 
 function minutesOfDay(value: string) {
@@ -109,6 +115,8 @@ export function CalendarPage() {
   const [payload, setPayload] = useState<CalendarEventPayload>(emptyPayload());
   const [message, setMessage] = useState("일정을 불러오고 있습니다.");
   const [timeError, setTimeError] = useState("");
+  const previousTimes = useRef(defaultTimes);
+  const allDay = isAllDay(payload.startTime, payload.endTime);
 
   const monthDays = useMemo(() => getMonthDays(monthDate), [monthDate]);
   const monthLabel = new Intl.DateTimeFormat("ko-KR", {
@@ -128,6 +136,7 @@ export function CalendarPage() {
       setSelectedDate(linkedEvent.eventDate);
       setMonthDate(toDateValue(linkedEvent.eventDate));
       setPayload(emptyPayload(linkedEvent.eventDate));
+      previousTimes.current = defaultTimes;
     }
   }
 
@@ -154,7 +163,21 @@ export function CalendarPage() {
     setSelectedDate(date);
     setEditingId(null);
     setPayload(emptyPayload(date));
+    previousTimes.current = defaultTimes;
     setTimeError("");
+  }
+
+  function toggleAllDay(checked: boolean) {
+    setTimeError("");
+    if (checked) {
+      previousTimes.current = {
+        startTime: payload.startTime || defaultTimes.startTime,
+        endTime: payload.endTime || defaultTimes.endTime,
+      };
+      setPayload((current) => ({ ...current, startTime: allDayStart, endTime: allDayEnd }));
+    } else {
+      setPayload((current) => ({ ...current, ...previousTimes.current }));
+    }
   }
 
   function changeEventDate(date: Date | null) {
@@ -194,6 +217,10 @@ export function CalendarPage() {
   function startEdit(event: CalendarEvent) {
     setSelectedDate(event.eventDate);
     setEditingId(event.eventId);
+    previousTimes.current = isAllDay(event.startTime, event.endTime)
+      ? defaultTimes
+      : { startTime: normalizeTime(event.startTime), endTime: normalizeTime(event.endTime) };
+    setTimeError("");
     setPayload({
       eventTitle: event.eventTitle,
       eventDate: event.eventDate,
@@ -207,7 +234,7 @@ export function CalendarPage() {
 
   async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (minutesOfDay(payload.endTime) <= minutesOfDay(payload.startTime)) {
+    if (!allDay && minutesOfDay(payload.endTime) <= minutesOfDay(payload.startTime)) {
       setTimeError("종료 시간은 시작 시간보다 늦어야 합니다.");
       return;
     }
@@ -216,6 +243,7 @@ export function CalendarPage() {
     else await createCalendarEvent(payload);
     setEditingId(null);
     setPayload(emptyPayload(payload.eventDate));
+    previousTimes.current = defaultTimes;
     setTimeError("");
     await loadEvents();
   }
@@ -239,6 +267,7 @@ export function CalendarPage() {
     if (editingId === eventId) {
       setEditingId(null);
       setPayload(emptyPayload(selectedDate));
+      previousTimes.current = defaultTimes;
     }
     try {
       await loadEvents();
@@ -338,6 +367,7 @@ export function CalendarPage() {
                 onClick={() => {
                   setEditingId(null);
                   setPayload(emptyPayload(selectedDate));
+                  previousTimes.current = defaultTimes;
                   setTimeError("");
                 }}
               >
@@ -361,7 +391,9 @@ export function CalendarPage() {
                       <em className="event-description">{event.event_dsc}</em>
                     )}
                     <p>
-                      {event.startTime} - {event.endTime} ·{" "}
+                      {isAllDay(event.startTime, event.endTime)
+                        ? "종일"
+                        : `${normalizeTime(event.startTime)} - ${normalizeTime(event.endTime)}`} ·{" "}
                       {categoryLabels[event.eventCatg]}
                     </p>
                   </div>
@@ -444,6 +476,14 @@ export function CalendarPage() {
                 </select>
               </label>
             </div>
+            <label className="calendar-all-day">
+              <input
+                type="checkbox"
+                checked={allDay}
+                onChange={(event) => toggleAllDay(event.target.checked)}
+              />
+              종일
+            </label>
             <div className="form-grid">
               <label>
                 시작 시간
@@ -452,6 +492,7 @@ export function CalendarPage() {
                   <input
                     type="time"
                     required
+                    disabled={allDay}
                     step={60}
                     max="23:58"
                     value={payload.startTime}
@@ -468,6 +509,7 @@ export function CalendarPage() {
                   <input
                     type="time"
                     required
+                    disabled={allDay}
                     step={60}
                     min={minimumEndTime(payload.startTime)}
                     max="23:59"
@@ -487,13 +529,17 @@ export function CalendarPage() {
             <div className="color-row">
               {categoryColors.map((color) => (
                 <button
-                  className={payload.color === color ? "is-selected" : ""}
+                  className={`${payload.color === color ? "is-selected" : ""} ${color === "orange" || color === "yellow" ? "is-light-color" : ""}`.trim()}
                   key={color}
                   type="button"
                   style={{ background: color }}
                   onClick={() => setPayload({ ...payload, color })}
                   title={color}
-                />
+                  aria-label={`${color} 색상`}
+                  aria-pressed={payload.color === color}
+                >
+                  {payload.color === color ? "✓" : null}
+                </button>
               ))}
             </div>
             <label>

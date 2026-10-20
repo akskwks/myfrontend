@@ -172,29 +172,14 @@
     opacity: 0.28;
   }
 
-  .home-bottom-grid {
-    display: grid;
-    grid-template-columns: 1fr;
+  .home-overview {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
   }
 
-  .home-bottom-grid {
-    height: auto;
-    gap: 32px;
-  }
-
-  .home-today,
-  .home-projects {
-    padding-inline: 0;
-    border-right: 0;
-  }
-
-  .home-today {
-    padding-bottom: 32px;
-    border-bottom: 1px solid var(--line);
-  }
-
-  .today-event-list {
-    max-height: 260px;
+  .home-overview-panel {
+    height: 310px;
+    padding: 18px;
   }
 
   .home-features {

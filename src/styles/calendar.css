@@ -221,6 +221,30 @@
   gap: 10px;
 }
 
+.stack-form .calendar-all-day {
+  display: inline-flex;
+  width: max-content;
+  align-items: center;
+  justify-self: end;
+  gap: 7px;
+  margin-bottom: -7px;
+  cursor: pointer;
+}
+
+.stack-form .calendar-all-day input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.stack-form input[type="time"]:disabled {
+  background: #f3f6f4;
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
 .date-picker-control {
   position: relative;
   min-width: 0;
@@ -330,14 +354,24 @@
 }
 
 .color-row button {
+  display: grid;
   width: 30px;
   height: 30px;
+  place-items: center;
   border: 2px solid transparent;
   border-radius: 50%;
+  color: #fff;
+  font-size: 19px;
+  font-weight: 800;
+  line-height: 1;
 }
 
 .color-row button.is-selected {
   border-color: var(--ink);
+}
+
+.color-row button.is-light-color {
+  color: #111;
 }
 
 .button-group {
