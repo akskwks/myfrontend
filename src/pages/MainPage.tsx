@@ -1,12 +1,18 @@
 /**
-*
-* 파일명 : MainPage.tsx
-* 역할 : 주요 기능 메뉴 카드를 보여주는 홈 화면
-* 생성일 : 2026-09-17
-*
-**/
+ *
+ * 파일명 : MainPage.tsx
+ * 역할 : 주요 기능 메뉴 카드를 보여주는 홈 화면
+ * 생성일 : 2026-09-17
+ *
+ **/
 
-import { useLayoutEffect, useRef, type MouseEvent } from "react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type MouseEvent,
+} from "react";
 import {
   ArrowRight,
   Bot,
@@ -16,7 +22,11 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import heroImg from "../assets/hero.png";
+import { getCalendarEvents } from "../api/calendarApi";
+import { getWorkProjects } from "../api/projectApi";
 import { AppShell } from "../components/AppShell";
+import type { CalendarEvent } from "../types/calendar";
+import type { WorkProject } from "../types/projectList";
 
 type FeatureKind = "calendar" | "project" | "memo" | "ai";
 
@@ -60,7 +70,8 @@ const features: {
 function shakeFeatureIcon(event: MouseEvent<HTMLAnchorElement>) {
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-  const icon = event.currentTarget.querySelector<HTMLElement>(".home-feature-icon");
+  const icon =
+    event.currentTarget.querySelector<HTMLElement>(".home-feature-icon");
   if (!icon) return;
 
   icon.getAnimations().forEach((animation) => animation.cancel());
@@ -78,8 +89,164 @@ function shakeFeatureIcon(event: MouseEvent<HTMLAnchorElement>) {
   );
 }
 
+function dateKey(date: Date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
+function recentDates() {
+  const today = new Date();
+  return Array.from({ length: 5 }, (_, index) =>
+    dateKey(
+      new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate() - 4 + index,
+      ),
+    ),
+  );
+}
+
+function CalendarTrend({
+  dates,
+  events,
+}: {
+  dates: string[];
+  events: CalendarEvent[];
+}) {
+  const [activePoint, setActivePoint] = useState<number | null>(null);
+  const counts = dates.map(
+    (date) => events.filter((event) => event.eventDate === date).length,
+  );
+  const maximum = Math.max(1, ...counts);
+  const left = 68;
+  const right = 520;
+  const top = 24;
+  const height = 146;
+  const points = counts.map((count, index) => ({
+    x: left + (index * (right - left)) / (counts.length - 1),
+    y: top + height - (count / maximum) * height,
+  }));
+
+  return (
+    <div className="home-trend-chart">
+      <svg
+        viewBox="0 0 548 214"
+        role="img"
+        aria-label="최근 5일간 일별 일정 개수"
+      >
+        {[0, maximum].map((tick) => {
+          const y = top + height - (tick / maximum) * height;
+          return (
+            <g key={tick}>
+              <line
+                className="home-chart-grid"
+                x1={left}
+                x2={right}
+                y1={y}
+                y2={y}
+              />
+              <text
+                className="home-chart-axis"
+                x="34"
+                y={y + 4}
+                textAnchor="end"
+              >
+                {tick}
+              </text>
+            </g>
+          );
+        })}
+        <polyline
+          className="home-chart-line"
+          points={points.map(({ x, y }) => `${x},${y}`).join(" ")}
+        />
+        {points.map(({ x, y }, index) => (
+          <g
+            className="home-chart-point"
+            key={dates[index]}
+            tabIndex={0}
+            role="img"
+            aria-label={`${dates[index]}, 일정 ${counts[index]}개`}
+            onMouseEnter={() => setActivePoint(index)}
+            onMouseLeave={() => setActivePoint(null)}
+            onFocus={() => setActivePoint(index)}
+            onBlur={() => setActivePoint(null)}
+          >
+            <circle className="home-chart-hit" cx={x} cy={y} r="19" />
+            <circle className="home-chart-dot" cx={x} cy={y} r="6" />
+            <text className="home-chart-axis" x={x} y="198" textAnchor="middle">
+              {dates[index].slice(5)}
+            </text>
+          </g>
+        ))}
+        {activePoint !== null &&
+          (() => {
+            const { x, y } = points[activePoint];
+            const tooltipX = Math.min(438, Math.max(0, x - 48));
+            const tooltipY = y < 68 ? y + 14 : y - 57;
+            return (
+              <g className="home-chart-tooltip" aria-hidden="true">
+                <rect x={tooltipX} y={tooltipY} width="76" height="43" rx="7" />
+                <text x={tooltipX + 10} y={tooltipY + 17}>
+                  {dates[activePoint].slice(5)}
+                </text>
+                <text x={tooltipX + 10} y={tooltipY + 34}>
+                  {counts[activePoint]}개
+                </text>
+              </g>
+            );
+          })()}
+      </svg>
+    </div>
+  );
+}
+
 export function MainPage() {
   const featureListRef = useRef<HTMLElement>(null);
+  const [dates] = useState(recentDates);
+  const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const [projects, setProjects] = useState<WorkProject[]>([]);
+  const [eventsLoading, setEventsLoading] = useState(true);
+  const [projectsLoading, setProjectsLoading] = useState(true);
+  const [eventsError, setEventsError] = useState(false);
+  const [projectsError, setProjectsError] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    getCalendarEvents()
+      .then((result) => {
+        if (active) setEvents(result);
+      })
+      .catch(() => {
+        if (active) setEventsError(true);
+      })
+      .finally(() => {
+        if (active) setEventsLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    getWorkProjects()
+      .then((result) => {
+        if (active)
+          setProjects(
+            result.filter((project) => project.projectStatus === "in_progress"),
+          );
+      })
+      .catch(() => {
+        if (active) setProjectsError(true);
+      })
+      .finally(() => {
+        if (active) setProjectsLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useLayoutEffect(() => {
     const sections =
@@ -189,109 +356,80 @@ export function MainPage() {
         ))}
       </section>
 
-      {/* <section
-        className="home-bottom-grid"
-        aria-label="오늘의 일정과 업무 및 프로젝트 관리"
-      >
-        <section className="home-today" aria-labelledby="today-title">
-          <div className="home-bottom-heading">
+      <section className="home-overview" aria-label="일정 및 프로젝트 현황">
+        <section
+          className="home-overview-panel home-overview-calendar"
+          aria-labelledby="trend-title"
+        >
+          <div className="home-overview-heading">
+            <span className="home-overview-icon">
+              <CalendarDays size={23} aria-hidden="true" />
+            </span>
             <div>
-              <p className="eyebrow">Today</p>
-              <h2 id="today-title">오늘의 일정</h2>
+              <h2 id="trend-title">최근 일정 현황</h2>
+              <p>최근 5일간의 일정</p>
             </div>
-            <a
-              className="home-panel-link"
-              href="#/calendar"
-              title="캘린더 열기"
-            >
-              <CalendarClock size={19} aria-hidden="true" />
-              <span className="sr-only">캘린더 열기</span>
-            </a>
           </div>
-
-          <div className="today-event-list">
-            {isLoadingEvents ? (
-              <p className="home-empty-state">오늘 일정을 불러오고 있습니다.</p>
-            ) : eventError ? (
-              <p className="home-empty-state is-error">{eventError}</p>
-            ) : todayEvents.length === 0 ? (
-              <p className="home-empty-state">오늘 등록된 일정이 없습니다.</p>
-            ) : (
-              todayEvents.map((event) => (
-                <a
-                  className="today-event"
-                  href={`#/calendar?eventId=${event.eventId}`}
-                  key={event.eventId}
-                >
-                  <time dateTime={`${event.eventDate}T${event.startTime}`}>
-                    {event.startTime.slice(0, 5)}
-                  </time>
-                  <span className="today-event-category">
-                    {categoryLabels[event.eventCatg]}
-                  </span>
-                  <strong>{event.eventTitle}</strong>
-                  <span
-                    className="today-event-color"
-                    style={{ backgroundColor: event.color }}
-                    aria-hidden="true"
-                  />
-                </a>
-              ))
-            )}
-          </div>
+          {eventsLoading ? (
+            <p className="home-overview-state">
+              일정 현황을 불러오는 중입니다.
+            </p>
+          ) : eventsError ? (
+            <p className="home-overview-state is-error">
+              일정 현황을 불러오지 못했습니다.
+            </p>
+          ) : (
+            <CalendarTrend dates={dates} events={events} />
+          )}
         </section>
 
-        <section className="home-projects" aria-labelledby="project-title">
-          <div className="home-bottom-heading">
+        <section
+          className="home-overview-panel home-overview-projects"
+          aria-labelledby="active-projects-title"
+        >
+          <div className="home-overview-heading">
+            <span className="home-overview-icon">
+              <BriefcaseBusiness size={23} aria-hidden="true" />
+            </span>
             <div>
-              <p className="eyebrow">Projects</p>
-              <h2 id="project-title">업무 및 프로젝트 관리</h2>
+              <h2 id="active-projects-title">진행 중인 프로젝트</h2>
+              <p>현재 진행 중인 프로젝트</p>
             </div>
-            <a
-              className="home-panel-link"
-              href="#/works"
-              title="프로젝트 관리 열기"
-            >
-              <BriefcaseBusiness size={19} aria-hidden="true" />
-              <span className="sr-only">프로젝트 관리 열기</span>
-            </a>
           </div>
-          <div className="home-project-list" aria-live="polite">
-            {isLoadingProjects ? (
-              <p className="home-empty-state">프로젝트를 불러오고 있습니다.</p>
-            ) : projectError ? (
-              <p className="home-empty-state is-error">{projectError}</p>
+          <div className="home-active-project-list" aria-live="polite">
+            {projectsLoading ? (
+              <p className="home-overview-state">
+                프로젝트를 불러오는 중입니다.
+              </p>
+            ) : projectsError ? (
+              <p className="home-overview-state is-error">
+                프로젝트를 불러오지 못했습니다.
+              </p>
             ) : projects.length === 0 ? (
-              <p className="home-empty-state">등록된 프로젝트가 없습니다.</p>
+              <p className="home-overview-state">
+                현재 진행 중인 프로젝트가 없습니다.
+              </p>
             ) : (
               projects.map((project) => (
                 <a
-                  className="home-project-item"
+                  className="home-active-project"
                   href={`#/works/${project.projectId}`}
                   key={project.projectId}
                 >
-                  <div className="home-project-main">
+                  <span className="home-active-project-info">
                     <strong>{project.projectName}</strong>
                     <span>
-                      {project.startDate} - {project.endDate}
+                      {project.startDate} ~ {project.endDate}
                     </span>
-                  </div>
-                  <span
-                    className={`environment-badge is-${project.workEnvironment}`}
-                  >
-                    {environmentLabels[project.workEnvironment]}
                   </span>
-                  <span
-                    className={`work-status-badge is-${project.projectStatus}`}
-                  >
-                    {projectStatusLabels[project.projectStatus]}
-                  </span>
+                  {/* <span className="home-active-project-status">진행중</span> */}
+                  <ArrowRight size={22} aria-hidden="true" />
                 </a>
               ))
             )}
           </div>
         </section>
-      </section> */}
+      </section>
     </AppShell>
   );
 }

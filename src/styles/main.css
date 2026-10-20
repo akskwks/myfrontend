@@ -99,10 +99,6 @@
   background: rgba(255, 255, 255, 0.1);
 }
 
-.home-bottom-grid h2 {
-  margin-bottom: 0;
-}
-
 .home-features {
   display: grid;
   width: min(100%, 1120px);
@@ -249,189 +245,206 @@
   }
 }
 
-.home-bottom-grid {
+.home-overview {
   display: grid;
+  width: min(100%, 1120px);
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  height: 360px;
-  padding: 40px 8px 48px;
-  border-top: 1px solid var(--line);
+  gap: 18px;
+  margin: 28px auto 0;
+  padding-bottom: 28px;
 }
 
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
-
-.home-today,
-.home-projects {
+.home-overview-panel {
   display: flex;
   min-width: 0;
-  min-height: 0;
+  height: 340px;
   flex-direction: column;
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
 }
 
-.home-today {
-  padding-right: 34px;
-  border-right: 1px solid var(--line);
+.home-overview-calendar {
+  border-top: 3px solid #087f6c;
 }
 
-.home-projects {
-  padding-left: 34px;
+.home-overview-projects {
+  border-top: 3px solid #a45a18;
 }
 
-.home-bottom-heading {
+.home-overview-heading {
   display: flex;
-  min-height: 56px;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 10px;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
 }
 
-.home-panel-link {
-  display: inline-grid;
-  width: 38px;
-  height: 38px;
+.home-overview-heading h2 {
+  margin: 0;
+  font-size: 1.22rem;
+}
+
+.home-overview-heading p {
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.home-overview-icon {
+  display: grid;
+  width: 40px;
+  height: 40px;
   flex: 0 0 auto;
   place-items: center;
-  border: 1px solid var(--line);
   border-radius: 7px;
-  color: var(--muted);
-  transition:
-    border-color 160ms ease,
-    color 160ms ease,
-    background 160ms ease;
+  background: #e5f5ef;
+  color: #087f6c;
 }
 
-.home-panel-link:hover {
-  border-color: rgba(8, 127, 108, 0.4);
-  background: var(--accent-soft);
-  color: var(--accent-dark);
+.home-overview-projects .home-overview-icon {
+  background: #fcf0e3;
+  color: #a45a18;
 }
 
-.today-event-list,
-.home-project-list {
-  min-height: 0;
+.home-overview-state {
+  display: grid;
   flex: 1;
-}
-
-.today-event-list {
-  display: grid;
-  align-content: start;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-}
-
-.today-event {
-  position: relative;
-  display: grid;
-  grid-template-columns: 48px max-content minmax(0, 1fr);
-  min-height: 52px;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 16px 10px 13px;
-  border-bottom: 1px solid var(--line);
-  color: var(--text);
-  text-decoration: none;
-  transition:
-    color 160ms ease,
-    background 160ms ease;
-}
-
-.today-event:hover {
-  background: #f3f8f5;
-  color: var(--accent-dark);
-}
-
-.today-event time {
-  color: var(--muted);
-  font-variant-numeric: tabular-nums;
-  font-weight: 700;
-}
-
-.today-event-category {
-  padding: 3px 7px;
-  border-radius: 5px;
-  background: var(--accent-soft);
-  color: var(--accent-dark);
-  font-size: 0.76rem;
-  font-weight: 750;
-}
-
-.today-event strong {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.today-event-color {
-  position: absolute;
-  right: 3px;
-  width: 4px;
-  height: 22px;
-  border-radius: 2px;
-}
-
-.home-empty-state {
-  display: grid;
-  min-height: 156px;
   place-items: center;
   margin: 0;
   color: var(--muted);
   text-align: center;
 }
 
-.home-project-list {
-  display: grid;
-  align-content: start;
+.home-overview-state.is-error {
+  color: var(--danger);
+}
+
+.home-trend-chart {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  align-items: center;
+}
+
+.home-trend-chart svg {
+  display: block;
+  width: 100%;
+  max-height: 240px;
+  overflow: visible;
+}
+
+.home-chart-grid {
+  stroke: #dce9e4;
+  stroke-dasharray: 3 5;
+}
+
+.home-chart-axis {
+  fill: var(--muted);
+  font-size: 12px;
+}
+
+.home-chart-line {
+  fill: none;
+  stroke: #087f6c;
+  stroke-width: 2.5;
+  stroke-dasharray: 5 6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.home-chart-hit {
+  fill: transparent;
+}
+
+.home-chart-dot {
+  fill: #fff;
+  stroke: #087f6c;
+  stroke-width: 3;
+}
+
+.home-chart-point {
+  cursor: default;
+}
+
+.home-chart-point:focus {
+  outline: none;
+}
+
+.home-chart-point:is(:hover, :focus) .home-chart-dot {
+  fill: #087f6c;
+}
+
+.home-chart-tooltip {
+  pointer-events: none;
+}
+
+.home-chart-tooltip rect {
+  fill: #153e34;
+}
+
+.home-chart-tooltip text {
+  fill: #fff;
+  font-size: 12px;
+}
+
+.home-active-project-list {
+  min-height: 0;
+  flex: 1;
   overflow-y: auto;
   overscroll-behavior: contain;
 }
 
-.home-project-item {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) max-content max-content;
+.home-active-project {
+  display: flex;
+  min-width: 0;
   align-items: center;
   gap: 10px;
-  padding: 12px 14px;
+  padding: 15px 8px;
   border-bottom: 1px solid var(--line);
   color: var(--text);
   text-decoration: none;
-  transition:
-    color 160ms ease,
-    background 160ms ease;
+  transition: background 160ms ease;
+  font-size: 1.1rem;
 }
 
-.home-project-item:hover {
-  color: var(--accent-dark);
-  background: #f3f8f5;
+.home-active-project:hover,
+.home-active-project:focus-visible {
+  background: #fcf7f1;
 }
 
-.home-project-main {
+.home-active-project-info {
   display: grid;
   min-width: 0;
-  gap: 3px;
+  flex: 1;
+  gap: 4px;
 }
 
-.home-project-main strong {
+.home-active-project-info strong {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.home-project-main > span {
+.home-active-project-info > span {
   color: var(--muted);
-  font-size: 0.78rem;
+  font-size: 0.9rem;
   font-variant-numeric: tabular-nums;
 }
 
-.home-empty-state.is-error {
-  color: var(--danger);
+.home-active-project-status {
+  flex: 0 0 auto;
+  padding: 4px 7px;
+  border-radius: 4px;
+  background: #fcf0e3;
+  color: #8c4d15;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.home-active-project > svg {
+  flex: 0 0 auto;
+  color: #a45a18;
 }
 
 @media (max-width: 1100px) {
