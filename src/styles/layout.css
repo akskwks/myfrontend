@@ -31,7 +31,7 @@ body {
   display: flex;
   min-height: 0;
   flex-direction: column;
-  padding: 22px 14px 16px;
+  padding: 22px 14px 10px;
   overflow-y: auto;
   border-right: 1px solid #d8e1dc;
   background: #10231f;
@@ -60,7 +60,7 @@ body {
 .sidebar-brand small,
 .sidebar-account small {
   color: #9fb3ac;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
 }
 
 .app-sidebar .brand-mark {
