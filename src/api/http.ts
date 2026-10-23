@@ -40,6 +40,9 @@ async function getCsrfToken() {
     csrfRequest = fetch("/api/user/csrf", { credentials: "same-origin" })
       .then(async (response) => {
         if (!response.ok) {
+          if (response.status === 401) {
+            window.dispatchEvent(new Event(USER_REQUIRED_EVENT));
+          }
           throw new ApiError("인증 정보를 확인하지 못했습니다.", response.status);
         }
         const body = (await response.json()) as { token: string };
@@ -66,7 +69,7 @@ async function performRequest<T>(url: string, options?: RequestInit): Promise<T>
   });
 
   if (!response.ok) {
-    if (response.status === 401 && !url.startsWith("/api/user/")) {
+    if (response.status === 401 && (!url.startsWith("/api/user/") || url === "/api/user/logout")) {
       window.dispatchEvent(new Event(USER_REQUIRED_EVENT));
     }
     const errorBody = await response

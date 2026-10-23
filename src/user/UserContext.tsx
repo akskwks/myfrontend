@@ -6,7 +6,7 @@
 *
 **/
 
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { getCurrentUser, login, logout, type UserInfo, type LoginCredentials } from "../api/userApi";
 import { USER_REQUIRED_EVENT, ApiError, clearCsrfToken } from "../api/http";
 
@@ -19,31 +19,43 @@ type UserContextValue = {
 };
 
 const UserContext = createContext<UserContextValue | null>(null);
+const sessionMarker = "myapp:authenticated-session";
 
 export function UserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserInfo | null>(null);
   const [checking, setChecking] = useState(true);
   const [startupError, setStartupError] = useState("");
+  const [sessionExpired, setSessionExpired] = useState(false);
+  const authenticatedRef = useRef(false);
 
   useEffect(() => {
     let active = true;
+    const requireUser = () => {
+      const hadSession = authenticatedRef.current || sessionStorage.getItem(sessionMarker) === "1";
+      authenticatedRef.current = false;
+      sessionStorage.removeItem(sessionMarker);
+      clearCsrfToken();
+      setUser(null);
+      location.hash = "#/login";
+      if (hadSession) setSessionExpired(true);
+    };
     getCurrentUser()
       .then((currentUser) => {
-        if (active) setUser(currentUser);
+        if (active) {
+          authenticatedRef.current = true;
+          sessionStorage.setItem(sessionMarker, "1");
+          setUser(currentUser);
+        }
       })
       .catch((error: unknown) => {
-        if (active && !(error instanceof ApiError && error.status === 401)) {
-          setStartupError("서버에 연결하지 못했습니다. 잠시 후 다시 시도해 주세요.");
+        if (active) {
+          if (error instanceof ApiError && error.status === 401) requireUser();
+          else setStartupError("서버에 연결하지 못했습니다. 잠시 후 다시 시도해 주세요.");
         }
       })
       .finally(() => {
         if (active) setChecking(false);
       });
-    const requireUser = () => {
-      clearCsrfToken();
-      setUser(null);
-      location.hash = "#/login";
-    };
     window.addEventListener(USER_REQUIRED_EVENT, requireUser);
     return () => {
       active = false;
@@ -51,8 +63,17 @@ export function UserProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  useEffect(() => {
+    if (!sessionExpired) return;
+    const timer = window.setTimeout(() => setSessionExpired(false), 3000);
+    return () => window.clearTimeout(timer);
+  }, [sessionExpired]);
+
   async function signIn(credentials: LoginCredentials) {
     const currentUser = await login(credentials);
+    authenticatedRef.current = true;
+    sessionStorage.setItem(sessionMarker, "1");
+    setSessionExpired(false);
     setStartupError("");
     location.hash = "#/";
     setUser(currentUser);
@@ -60,6 +81,9 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
   async function signOut() {
     await logout();
+    authenticatedRef.current = false;
+    sessionStorage.removeItem(sessionMarker);
+    setSessionExpired(false);
     location.hash = "#/login";
     setUser(null);
   }
@@ -67,6 +91,11 @@ export function UserProvider({ children }: { children: ReactNode }) {
   return (
     <UserContext.Provider value={{ user, checking, startupError, signIn, signOut }}>
       {children}
+      {sessionExpired && (
+        <div className="session-expired-toast" role="alert">
+          세션이 만료되었습니다. 다시 로그인해 주세요.
+        </div>
+      )}
     </UserContext.Provider>
   );
 }
