@@ -93,8 +93,7 @@ function dateKey(date: Date) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 }
 
-function recentDates() {
-  const today = new Date();
+function recentDates(today: Date) {
   return Array.from({ length: 5 }, (_, index) =>
     dateKey(
       new Date(
@@ -106,6 +105,53 @@ function recentDates() {
   );
 }
 
+function dayValue(date: string) {
+  const [year, month, day] = date.split("-").map(Number);
+  return Date.UTC(year, month - 1, day);
+}
+
+function periodProgress(startDate: string, endDate: string, today: Date) {
+  const start = dayValue(startDate);
+  const end = dayValue(endDate);
+  const current = Date.UTC(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate(),
+  );
+  if (!Number.isFinite(start) || !Number.isFinite(end)) return 0;
+  if (end <= start) return current >= start ? 100 : 0;
+  return Math.min(
+    100,
+    Math.max(0, Math.floor(((current - start) / (end - start)) * 100)),
+  );
+}
+
+function useLoadProgress() {
+  const [progress, setProgress] = useState(() =>
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 1 : 0,
+  );
+
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setProgress(1);
+      return;
+    }
+
+    let frame = 0;
+    let startedAt: number | null = null;
+    const animate = (time: number) => {
+      if (startedAt === null) startedAt = time;
+      const elapsed = Math.min((time - startedAt) / 900, 1);
+      setProgress(1 - (1 - elapsed) ** 3);
+      if (elapsed < 1) frame = requestAnimationFrame(animate);
+    };
+    frame = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(frame);
+  }, []);
+
+  return progress;
+}
+
 function CalendarTrend({
   dates,
   events,
@@ -114,6 +160,7 @@ function CalendarTrend({
   events: CalendarEvent[];
 }) {
   const [activePoint, setActivePoint] = useState<number | null>(null);
+  const loadProgress = useLoadProgress();
   const counts = dates.map(
     (date) => events.filter((event) => event.eventDate === date).length,
   );
@@ -124,7 +171,7 @@ function CalendarTrend({
   const height = 146;
   const points = counts.map((count, index) => ({
     x: left + (index * (right - left)) / (counts.length - 1),
-    y: top + height - (count / maximum) * height,
+    y: top + height - ((count * loadProgress) / maximum) * height,
   }));
 
   return (
@@ -191,7 +238,7 @@ function CalendarTrend({
                   {dates[activePoint].slice(5)}
                 </text>
                 <text x={tooltipX + 10} y={tooltipY + 34}>
-                  {counts[activePoint]}개
+                  {Math.round(counts[activePoint] * loadProgress)}개
                 </text>
               </g>
             );
@@ -201,15 +248,71 @@ function CalendarTrend({
   );
 }
 
+function ActiveProjectList({ projects, today }: { projects: WorkProject[]; today: Date }) {
+  const loadProgress = useLoadProgress();
+
+  return projects.map((project) => {
+    const progress = periodProgress(project.startDate, project.endDate, today);
+    const displayedProgress = progress * loadProgress;
+    return (
+      <a
+        className="home-active-project"
+        href={`#/works/${project.projectId}`}
+        key={project.projectId}
+      >
+        <span className="home-active-project-top">
+          <span className="home-active-project-info">
+            <strong>{project.projectName}</strong>
+            <span>{project.startDate} ~ {project.endDate}</span>
+          </span>
+          <ArrowRight size={20} aria-hidden="true" />
+        </span>
+        <span className="home-active-project-progress-label">
+          {/* <span>기간 진행률</span> */}
+          <strong>{Math.round(displayedProgress)}%</strong>
+        </span>
+        <span
+          className="home-active-project-track"
+          role="progressbar"
+          aria-label={`${project.projectName} 기간 진행률`}
+          aria-valuenow={Math.round(displayedProgress)}
+          aria-valuemin={0}
+          aria-valuemax={100}
+        >
+          <span
+            className="home-active-project-fill"
+            style={{ width: `${displayedProgress}%` }}
+          />
+        </span>
+        {/* <span className="home-active-project-status">진행중</span> */}
+      </a>
+    );
+  });
+}
+
 export function MainPage() {
   const featureListRef = useRef<HTMLElement>(null);
-  const [dates] = useState(recentDates);
+  const [today, setToday] = useState(() => new Date());
+  const dates = recentDates(today);
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [projects, setProjects] = useState<WorkProject[]>([]);
   const [eventsLoading, setEventsLoading] = useState(true);
   const [projectsLoading, setProjectsLoading] = useState(true);
   const [eventsError, setEventsError] = useState(false);
   const [projectsError, setProjectsError] = useState(false);
+
+  useEffect(() => {
+    const nextDay = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate() + 1,
+    );
+    const timer = window.setTimeout(
+      () => setToday(new Date()),
+      nextDay.getTime() - Date.now() + 50,
+    );
+    return () => window.clearTimeout(timer);
+  }, [today]);
 
   useEffect(() => {
     let active = true;
@@ -410,22 +513,7 @@ export function MainPage() {
                 현재 진행 중인 프로젝트가 없습니다.
               </p>
             ) : (
-              projects.map((project) => (
-                <a
-                  className="home-active-project"
-                  href={`#/works/${project.projectId}`}
-                  key={project.projectId}
-                >
-                  <span className="home-active-project-info">
-                    <strong>{project.projectName}</strong>
-                    <span>
-                      {project.startDate} ~ {project.endDate}
-                    </span>
-                  </span>
-                  {/* <span className="home-active-project-status">진행중</span> */}
-                  <ArrowRight size={22} aria-hidden="true" />
-                </a>
-              ))
+              <ActiveProjectList projects={projects} today={today} />
             )}
           </div>
         </section>
